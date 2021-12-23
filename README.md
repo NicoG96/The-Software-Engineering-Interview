@@ -3,68 +3,68 @@
 <h3> Table of Contents </h3> <!-- omit in toc -->
 
 1. [Data Structures](#data-structures)
-	1. [Graphs](#graphs)
-	2. [Trees](#trees)
-	3. [Heaps](#heaps)
-	4. [Disjoint Sets](#disjoint-sets)
-	5. [Tries](#tries)
-	6. [Linked Lists](#linked-lists)
+   1. [Graphs](#graphs)
+   2. [Trees](#trees)
+   3. [Heaps](#heaps)
+   4. [Disjoint Sets](#disjoint-sets)
+   5. [Tries](#tries)
+   6. [Linked Lists](#linked-lists)
 2. [Algorithms](#algorithms)
-	1. [Patterns](#patterns)
-		1. [Sliding Window](#sliding-window)
-		2. [Two Pointers](#two-pointers)
-		3. [Fast & Slow Pointers](#fast--slow-pointers)
-		4. [Merge Intervals](#merge-intervals)
-		5. [Cyclic Sort](#cyclic-sort)
-		6. [Reversal of a Linked List](#reversal-of-a-linked-list)
-		7. [BFS](#bfs)
-		8. [DFS](#dfs)
-		9. [2 Heaps](#2-heaps)
-		10. [Subsets](#subsets)
-		11. [Binary Search](#binary-search)
-		12. [Bitwise XOR](#bitwise-xor)
-		13. [Top K Elements](#top-k-elements)
-		14. [K-Way Merge](#k-way-merge)
-		15. [Backtracking](#backtracking)
-		16. [Graph Algorithms](#graph-algorithms)
-		17. [Dynamic Programming](#dynamic-programming)
-	2. [Sorting](#sorting)
-		1. [Mergesort](#mergesort)
-		2. [Quicksort](#quicksort)
-		3. [Insertion sort](#insertion-sort)
-		4. [Selection sort](#selection-sort)
-		5. [Bubble sort](#bubble-sort)
-		6. [Heap sort](#heap-sort)
-		7. [Bucket Sort](#bucket-sort)
+   1. [Patterns](#patterns)
+      1. [Sliding Window](#sliding-window)
+      2. [Two Pointers](#two-pointers)
+      3. [Fast & Slow Pointers](#fast--slow-pointers)
+      4. [Merge Intervals](#merge-intervals)
+      5. [Cyclic Sort](#cyclic-sort)
+      6. [Reversal of a Linked List](#reversal-of-a-linked-list)
+      7. [BFS](#bfs)
+      8. [DFS](#dfs)
+      9. [2 Heaps](#2-heaps)
+      10. [Subsets](#subsets)
+      11. [Binary Search](#binary-search)
+      12. [Bitwise XOR](#bitwise-xor)
+      13. [Top K Elements](#top-k-elements)
+      14. [K-Way Merge](#k-way-merge)
+      15. [Backtracking](#backtracking)
+      16. [Graph Algorithms](#graph-algorithms)
+      17. [Dynamic Programming](#dynamic-programming)
+   2. [Sorting](#sorting)
+      1. [Mergesort](#mergesort)
+      2. [Quicksort](#quicksort)
+      3. [Insertion sort](#insertion-sort)
+      4. [Selection sort](#selection-sort)
+      5. [Bubble sort](#bubble-sort)
+      6. [Heap sort](#heap-sort)
+      7. [Bucket Sort](#bucket-sort)
 3. [System Design](#system-design)
-	1. [High-level Process](#high-level-process)
-	2. [Caching](#caching)
-	3. [Data Partitioning](#data-partitioning)
-	4. [CAP Theorem](#cap-theorem)
-	5. [Consistent Hashing](#consistent-hashing)
-	6. [Load Balancing](#load-balancing)
-	7. [Distributed Systems](#distributed-systems)
-	8. [Miscellaneous](#miscellaneous)
+   1. [High-level Process](#high-level-process)
+   2. [Caching](#caching)
+   3. [Data Partitioning](#data-partitioning)
+   4. [CAP Theorem](#cap-theorem)
+   5. [Consistent Hashing](#consistent-hashing)
+   6. [Load Balancing](#load-balancing)
+   7. [Distributed Systems](#distributed-systems)
+   8. [Miscellaneous](#miscellaneous)
 4. [Big-O](#big-o)
 5. [Bit Manipulation](#bit-manipulation)
 6. [Dynamic Programming](#dynamic-programming-1)
 7. [Languages](#languages)
-	1. [Python](#python)
-		1. [Dictionaries](#dictionaries)
-		2. [Heapq](#heapq)
-		3. [Counter](#counter)
-		4. [Decorators](#decorators)
-		5. [Iterators & Generators](#iterators--generators)
-		6. [Sets](#sets)
-		7. [itertools](#itertools)
-		8. [I/O](#io)
-		9. [args and kwargs](#args-and-kwargs)
-		10. [Dataclasses](#dataclasses)
-		11. [Miscellaneous](#miscellaneous-1)
-	2. [SQL](#sql)
-		1. [ACID vs. BASE](#acid-vs-base)
-		2. [Indexing](#indexing)
-		3. [NoSQL](#nosql)
+   1. [Python](#python)
+      1. [Dictionaries](#dictionaries)
+      2. [Heapq](#heapq)
+      3. [Counter](#counter)
+      4. [Decorators](#decorators)
+      5. [Iterators & Generators](#iterators--generators)
+      6. [Sets](#sets)
+      7. [itertools](#itertools)
+      8. [I/O](#io)
+      9. [args and kwargs](#args-and-kwargs)
+      10. [Dataclasses](#dataclasses)
+      11. [Miscellaneous](#miscellaneous-1)
+   2. [SQL](#sql)
+      1. [ACID vs. BASE](#acid-vs-base)
+      2. [Indexing](#indexing)
+      3. [NoSQL](#nosql)
 8. [OSI Model](#osi-model)
 9. [Powers of 10](#powers-of-10)
 10. [Powers of 2](#powers-of-2)
@@ -1163,51 +1163,24 @@ Complexity
 - `O(V)` space complexity
 
 ```python
-vertices = [[0, 0, 1, 1, 0, 0, 0],
-            [0, 0, 1, 0, 0, 1, 0],
-            [1, 1, 0, 1, 1, 0, 0],
-            [1, 0, 1, 0, 0, 0, 1],
-            [0, 0, 1, 0, 0, 1, 0],
-            [0, 1, 0, 0, 1, 0, 1],
-            [0, 0, 0, 1, 0, 1, 0]]
+class Solution(object):
+    def network_delay_time(self, times, N, K):
+        graph = collections.defaultdict(list)
+        for u, v, w in times:
+            graph[u].append((v, w))
 
-edges = [[0, 0, 1, 2, 0, 0, 0],
-         [0, 0, 2, 0, 0, 3, 0],
-         [1, 2, 0, 1, 3, 0, 0],
-         [2, 0, 1, 0, 0, 0, 1],
-         [0, 0, 3, 0, 0, 2, 0],
-         [0, 3, 0, 0, 2, 0, 1],
-         [0, 0, 0, 1, 0, 1, 0]]
+        pq = [(0, K)]
+        dist = {node: float('inf') for node in range(1, N+1)}
 
-def to_be_visited():
-  global visited_and_distance
-  global num_of_vertices
-  v = -10
+        while pq:
+            weight, node = heapq.heappop(pq)
+            dist[node] = weight
 
-  for index in range(num_of_vertices):
-    if visited_and_distance[index][0] == 0 and (v < 0 or visited_and_distance[index][1] <= visited_and_distance[v][1]):
-      v = index
-  return v
+            for nei, nei_weight in graph[node]:
+                if nei_weight < dist[nei]:
+                    heapq.heappush(pq, (weight+nei_weight, nei))
 
-
-num_of_vertices = len(vertices[0])
-visited_and_distance = [[0, 0]]
-
-for i in range(num_of_vertices-1):
-  visited_and_distance.append([0, float("Inf")])
-
-for vertex in range(num_of_vertices):
-  to_visit = to_be_visited()
-  for neighbor_index in range(num_of_vertices):
-
-    # Updating new distances
-    if vertices[to_visit][neighbor_index] == 1 and visited_and_distance[neighbor_index][0] == 0:
-      new_distance = visited_and_distance[to_visit][1] + edges[to_visit][neighbor_index]
-
-      if visited_and_distance[neighbor_index][1] > new_distance:
-        visited_and_distance[neighbor_index][1] = new_distance
-
-    visited_and_distance[to_visit][0] = 1
+        return max(dist.values()) if len(dist) == N else -1
 ```
 
 ###### Bellman-Ford's Algorithm
