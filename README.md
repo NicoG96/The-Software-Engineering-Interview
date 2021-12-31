@@ -50,25 +50,11 @@
 6. [Dynamic Programming](#dynamic-programming-1)
 7. [Languages](#languages)
    1. [Python](#python)
-      1. [Dictionaries](#dictionaries)
-      2. [Heapq](#heapq)
-      3. [Counter](#counter)
-      4. [Decorators](#decorators)
-      5. [Iterators & Generators](#iterators--generators)
-      6. [Sets](#sets)
-      7. [itertools](#itertools)
-      8. [I/O](#io)
-      9. [args and kwargs](#args-and-kwargs)
-      10. [Dataclasses](#dataclasses)
-      11. [Miscellaneous](#miscellaneous-1)
    2. [SQL](#sql)
-      1. [ACID vs. BASE](#acid-vs-base)
-      2. [Indexing](#indexing)
-      3. [NoSQL](#nosql)
 8. [OSI Model](#osi-model)
 9. [Powers of 10](#powers-of-10)
 10. [Powers of 2](#powers-of-2)
-11. [Miscellaneous](#miscellaneous-2)
+11. [Miscellaneous](#miscellaneous-1)
 12. [Coding Assessment](#coding-assessment)
 13. [Resources](#resources)
 
@@ -1900,9 +1886,9 @@ def climbStairs(self, n: int) -> int:
 
 ### Python
 
-#### Dictionaries
+#### Dictionaries <!-- omit in toc -->
 
-##### Dict
+##### Dict 
 
 - `for key in dict` only iterates over keys
   - Use `dict.items()` for both keys and values
@@ -1928,7 +1914,7 @@ def climbStairs(self, n: int) -> int:
   - `move_to_end(key, last=True)`
     - Moves an existing key to either end of the dictionary
 
-#### Heapq
+#### Heapq <!-- omit in toc -->
 
 ```python
 import heapq
@@ -1947,7 +1933,7 @@ heapq.nsmallest(K, arr, key=None) # same as the above, just for minimums
 # note: this library modifies an array in-place
 ```
 
-#### Counter
+#### Counter <!-- omit in toc -->
 
 A module that receives an iterable as input and returns a (wrapped) dictionary of keys mapped to the amount of occurrences of that specific key within the iterable. The `Counter` object can be accessed using the same methods and syntax as a typical dictionary.
 
@@ -1981,7 +1967,7 @@ counter.elements() # returns a list of all elements (multiplied by their respect
 counter.most_common(val=None) # returns a descending val-sized list of tuples sorted according to their counts. If val not supplied, sorted list is returned in its entirety
 ```
 
-#### Decorators
+#### Decorators <!-- omit in toc -->
 
 - Wraps an existing function inside another function
 - Decorator receives original function as input, defines an inner function, invokes the original function somewhere within the inner function, and then returns the outer function to the caller
@@ -2010,7 +1996,7 @@ def fx():
   print("Goodbye world!")
 ```
 
-#### Iterators & Generators
+#### Iterators & Generators <!-- omit in toc -->
 
 1. `Iterator`
    - Any object with a class that has `__next__()` and `__iter__()`
@@ -2025,7 +2011,7 @@ def fx():
      - Provides an easy, short-hand way to _create_ iterators, where the state is automatically maintained for us
    - Implemented in a function, does not need a class
 
-#### Sets
+#### Sets <!-- omit in toc -->
 
 | method                           | description                                                         |
 | -------------------------------- | ------------------------------------------------------------------- |
@@ -2036,7 +2022,7 @@ def fx():
 | `.difference()` or `-`           | Returns elements that are solely unique to the **first** set        |
 | `.symmetric_difference()` or `^` | Returns all elements that are unique to **both** sets               |
 
-#### itertools
+#### itertools <!-- omit in toc -->
 
 module with a collection of fast and memory-efficient tools for iterables
 
@@ -2052,7 +2038,7 @@ module with a collection of fast and memory-efficient tools for iterables
 - Order of elements does not matter for combinations
 - A set with `n` distinct elements has `n!` permutations
 
-#### I/O
+#### I/O <!-- omit in toc -->
 
 ##### shutil
 
@@ -2082,7 +2068,7 @@ with open(file, rwx) as obj_file:
   for line in obj_file: # iterates through each line, newline included
 ```
 
-#### args and kwargs
+#### args and kwargs <!-- omit in toc -->
 
 ##### `*args`
 
@@ -2113,7 +2099,7 @@ def fruit(**kwargs):
 fruit(name="apple", color="red")
 ```
 
-#### Dataclasses
+#### Dataclasses <!-- omit in toc -->
 
 - Ideal for storing data
 - Requires data type declarations
@@ -2128,7 +2114,7 @@ class Product:
   customer: Any
 ```
 
-#### Miscellaneous
+#### Miscellaneous <!-- omit in toc -->
 
 ##### Comprehensions
 
@@ -2254,7 +2240,7 @@ class Product:
 
 ### SQL
 
-#### ACID vs. BASE
+#### ACID vs. BASE <!-- omit in toc -->
 
 - ACID
 
@@ -2289,14 +2275,14 @@ class Product:
 6. `ORDER BY` (can use a `SELECT` alias)
 7. `LIMIT`
 
-#### Indexing
+#### Indexing <!-- omit in toc -->
 
 - Used to improve query response time by facilitating faster searching
 - Implemented with a sorted list of (narrowly-scoped) data that can be used to look something up
   - i.e. Table of contents
 - Decreases write performance because for every write to a table, the index has to be written as well
 
-#### NoSQL
+#### NoSQL <!-- omit in toc -->
 
 - Key-Value stores
 
