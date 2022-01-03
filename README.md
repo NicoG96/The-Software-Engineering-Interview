@@ -1033,54 +1033,59 @@ Complexity
 
 - `O(E⋅logE)` time complexity, where `E` is equal to the number of edges
   - This is due to the initial sorting of the edges
-- `O(V)` space complexity, where `V` represents the total number of edges
+- `O(V)` space complexity, where `V` represents the total number of vertices
 
 <p align="center">
   <img width=50% src="./assets/kruskal.gif"/>
 </p>
 
 ```python
-ds = []
+def minCostConnectPoints(self, points: List[List[int]]) -> int:
+    edges = []
+    sum = 0
+    self.init(len(points))
 
-def min_cost_connect_points(self, points: List[List[int]]) -> int:
-  edges = []
-  sum = 0
-
-  self.init(len(points))
-
-  for i in range(len(points)):
-    for j in range(i+1, len(points)):
-      cost = self.calcManhattan(points[i], points[j])
-      edges.append((cost, i, j))
-
-  heapq.heapify(edges)
-
-  while edges:
-    edge = heapq.heappop(edges)
-    sum += self.union(edge)
-  return sum
-
+    for i in range(len(points)):
+        for j in range(i+1, len(points)):
+            cost = self.calcManhattan(points[i], points[j])
+            edges.append((cost, i, j))
+            
+    heapq.heapify(edges)
+    while edges:
+        edge = heapq.heappop(edges)
+        sum += self.union(edge)
+    return sum
+    
 def init(self, sz):
-  self.ds = [x for x in range(sz)]
-
-def calc_manhattan(self, pt1: List[int], pt2: List[int]):
-  return abs(pt1[0] - pt2[0]) + abs(pt1[1] - pt2[1])
-
+    self.roots = [x for x in range(sz)]
+    self.ranks = [0 for _ in range(sz)]
+              
+def calcManhattan(self, pt1: List[int], pt2: List[int]):
+    return abs(pt1[0] - pt2[0]) + abs(pt1[1] - pt2[1])
+              
 def find(self, x):
-  return self.ds[x]
-
+    if self.roots[x] != x:
+        self.roots[x] = self.find(self.roots[x])
+    return self.roots[x]
+              
 def union(self, data):
-  sum = 0
-  cost, x, y = data
-  rootx = self.find(x)
-  rooty = self.find(y)
-
-  if rootx != rooty:
-    sum += cost
-    for i in range(len(self.ds)):
-      if self.ds[i] == rootx:
-        self.ds[i] = rooty
-  return sum
+    cost, x, y = data
+    rootx = self.find(x)
+    rooty = self.find(y)
+    sum = 0
+    
+    if rootx != rooty:
+        sum += cost
+        
+        if self.ranks[rootx] == self.ranks[rooty]:
+            self.roots[rooty] = rootx
+            self.ranks[rootx] += 1
+        elif self.ranks[rootx] > self.ranks[rooty]:
+            self.roots[rooty] = rootx
+        else:
+            self.roots[rootx] = rooty
+            
+    return sum
 ```
 
 ###### Prim's Algorithm
@@ -1401,7 +1406,7 @@ def bubble_sort(array):
 ##### Algorithm 
 
 1. Heapify
-   1. The discrete algorithm that is used to construct a max-heap
+   1. The discrete algorithm that is used to construct a heap
    2. Given a node within the tree whose children are proper heaps, compare the parent to its children
       1. If the node is greater than its children, do nothing
       2. Otherwise, swap the node with its highest priority child
