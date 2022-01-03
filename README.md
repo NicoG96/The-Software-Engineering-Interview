@@ -47,6 +47,9 @@
    8. [Miscellaneous](#miscellaneous)
 4. [Big-O](#big-o)
 5. [Bit Manipulation](#bit-manipulation)
+   1. [XOR](#xor)
+      1. [Sum](#sum)
+      2. [Difference](#difference)
 6. [Dynamic Programming](#dynamic-programming-1)
 7. [Languages](#languages)
    1. [Python](#python)
@@ -1815,6 +1818,38 @@ server = servers[vnodes[hash(key) % vnodes.length]]
 | update i<sup>th</sup> bit                    | `(num & ~(1 << i)) \| (x << i)`                   |
 | clear right-most bit (also power of 2 check) | `num & (num - 1)`                                 |
 | swap variables                               | `num1 ^= num2` -> `num2 ^=num1` -> `num1 ^= num2` |
+
+### XOR
+
+An XOR between two numbers is the sum of the integers' binary representations, without taking carry into account (sum) *or* without taking *borrow* into account (difference). In other words, it's a sum of all bits where at least one of the bits is not set.
+
+#### Sum
+
+When summing two numbers, the carry-forward values need to be leveraged. To get these values, it follows that if an XOR `x^y` finds all bit differences, an AND `x&y` would provide all bit similarities. This result is then shifted over to the left once in order to properly align it with the XOR result. This process is then continuously repeated until the carry is 0.
+
+#### Difference
+
+For a difference between two numbers, the borrow values need to be indexed and squared against the XOR. The borrow can be derived using `((~x)&y) << 1`. The borrow is then used to repeat the above process until it is 0.
+
+##### Example
+
+```python
+def get_sum(a, b):
+  if abs(a) < abs(b): return self.getSum(b,a)
+          
+  x, y = abs(a), abs(b)
+  sign = 1 if a > 0 else -1
+
+  if a*b >= 0:
+    while y:
+      x, y = x^y, (x&y) << 1
+          
+  else:
+    while y:
+      x, y = x^y, ((~x)&y) << 1
+      
+  return x*sign
+```
 
 ### Big-Endian & Little-Endian <!-- omit in toc -->
 
