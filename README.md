@@ -1928,7 +1928,7 @@ def climbStairs(self, n: int) -> int:
 
 #### Dictionaries <!-- omit in toc -->
 
-##### Dict 
+##### Dict
 
 - `for key in dict` only iterates over keys
   - Use `dict.items()` for both keys and values
@@ -2227,6 +2227,7 @@ class Product:
     ```python
     sorted(x, key=lambda x: x[1], reverse=True)
     ```
+  - `O(nlogn)` time complexity and `O(n)` space
 
 ##### Misc
 
