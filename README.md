@@ -43,13 +43,11 @@
    4. [CAP Theorem](#cap-theorem)
    5. [Consistent Hashing](#consistent-hashing)
    6. [Load Balancing](#load-balancing)
-   7. [Distributed Systems](#distributed-systems)
-   8. [Miscellaneous](#miscellaneous)
+   7. [Reverse Proxies](#reverse-proxies)
+   8. [Distributed Systems](#distributed-systems)
+   9. [Miscellaneous](#miscellaneous)
 4. [Big-O](#big-o)
 5. [Bit Manipulation](#bit-manipulation)
-   1. [XOR](#xor)
-      1. [Sum](#sum)
-      2. [Difference](#difference)
 6. [Dynamic Programming](#dynamic-programming-1)
 7. [Languages](#languages)
    1. [Python](#python)
@@ -133,7 +131,7 @@ A tree is an _undirected_ graph in which any two vertices are connected by _exac
 - Post-order: Visit the _right_ side of each node
 
 <p align="center">
-  <img width=50% src="./assets/tree_traversals.jpeg"/>
+  <img width=30% src="./assets/tree_traversals.jpeg"/>
 </p>
 
 #### Implementations <!-- omit in toc -->
@@ -155,43 +153,26 @@ Binary trees which have an additional sorting constraint such that **all** nodes
   - Balanced trees have a height of `O(logN)` for `N` nodes
     - The worst case scenario for an unbalanced tree can be `O(N)`
 
-###### Red-Black Trees
-
-There are 4 main properties intrinsic to Red-Black trees:
-
-1. Each node is either **red** or **black**
-   - How the tree is "painted" ensures its balance
-   - Tree is constantly re-painted to maintain its red-black properties
-2. Root & all leaves are black
-   - Leaf nodes have no data
-3. If a node is red, then both of its children are black
-4. Every path from a given node to its descendant leaves has the same number of black nodes (not counting the original node)
-   - Therefore, there exists a black height for every node denoted as `bh(n)`
-
-These properties thus reveal an axiom that a path from the root node to its _farthest_ leaf node is _no more than twice as long_ as the path from the root node to its _nearest_ leaf node (shortest path is entirely black nodes while the longest is of alternating colors). This ensures the tree is roughly height-balanced and therefore optimally efficient.
-
-###### AVL trees
-
-A self-balancing binary search tree in which each node maintains extra information called a balance factor whose value is either `-1`, `0` or `+1`.
-
-- Balance factor of a node in an AVL tree is the difference between the height of the left subtree and that of the right subtree
-- More stringent balancing than that of a Red-Black tree
-  - Slower insertion & removal, faster search
-- The heights of two subtrees from any node differ at most by `1`
-  - If at any point the heights differ by more than `1`, a rebalancing is performed via tree rotations
-
 ##### Spanning Tree
 
 A sub-graph of an undirected, connected graph which includes **all** vertices of the supergraph, trimmed down to contain the absolute _minimum number of edges_. The total number of spanning trees with `n` vertices that can be created from a complete graph is equal to `n`<sup>`(n-2)`</sup>.
 
+<p align="center">
+    <img width=30% src="./assets/st.jpg"/>
+  </p>
+
 ###### Minimum Spanning Tree
 
-A minimum spanning tree is a logical extension of a spanning tree. The only difference is that, for a minimum spanning tree, **weighted edges** are taken into account to derive the global minimum cost required to connect all vertices.
+A minimum spanning tree is a logical extension of a spanning tree. The only difference is that, for a minimum spanning tree, **weighted edges** are taken into account in order to derive the **global minimum cost** required to connect all vertices.
 
 Algorithms:
 
 1. [Kruskal's Algorithm (vertices)](#kruskals-algorithm)
 2. [Prim's Algorithm (edges)](#prims-algorithm)
+
+<p align="center">
+    <img width=30% src="./assets/mst.png"/>
+  </p>
 
 ###### Shortest Path Tree
 
@@ -209,6 +190,67 @@ Algorithms:
 
 1. [Dijkstra's Algorithm](#dijkstras-algorithm)
 2. [Bellman-Ford's Algorithm](#bellman-fords-algorithm)
+
+<p align="center">
+    <img width=30% src="./assets/spt.png"/>
+  </p>
+
+##### Self-balancing Trees
+
+###### B-Trees
+
+A tree data structure that maintains sorted data and allows searches, *sequential access*, insertions, and deletions in logarithmic time. This type of tree is well-suited for storage systems that read and write relatively large blocks of data (i.e. disks), and as such, it is commonly implemented in database and file systems.
+
+**Definition**
+
+1. Every node has, at most, `m` children
+2. Every non-leaf node has at least `ceil(m/2)` children
+3. The root has at least two children
+4. A non-leaf node with `k` children contains `k-1` keys
+5. All leaves exist on the same level
+
+**Insertions**
+
+1. Find a leaf node where the item should be inserted by iteratively comparing existing keys to the item-to-be-inserted
+2. If a leaf node can accommodate another key, insert into the leaf
+3. If it *can't* be accommodated, then the node is split into two. The median key is then promoted to the parent node. If the parent node itself is also full, the process is potentially repeated all the way back to the root node, in which case the height of the entire tree would be incremented by one
+
+<p align="center">
+  <img width=50% src="./assets/b-tree.png"/>
+</p>
+
+###### Red-Black Trees
+
+There are 4 main properties intrinsic to Red-Black trees:
+
+1. Each node is either **red** or **black**
+   - How the tree is "painted" ensures its balance
+   - Tree is constantly re-painted to maintain its red-black properties
+2. Root & all leaves are black
+   - Leaf nodes have no data
+3. If a node is red, then both of its children are black
+4. Every path from a given node to its descendant leaves has the same number of black nodes (not counting the original node)
+   - Therefore, there exists a black height for every node denoted as `bh(n)`
+
+These properties thus reveal an axiom that a path from the root node to its _farthest_ leaf node is _no more than twice as long_ as the path from the root node to its _nearest_ leaf node (shortest path is entirely black nodes while the longest is of alternating colors). This ensures the tree is roughly height-balanced and therefore optimally efficient.
+
+<p align="center">
+  <img width=30% src="./assets/rbt.png"/>
+</p>
+
+###### AVL trees
+
+A self-balancing binary search tree in which each node maintains extra information called a balance factor whose value is either `-1`, `0` or `+1`.
+
+- Balance factor of a node in an AVL tree is the difference between the height of the left subtree and that of the right subtree
+- More stringent balancing than that of a Red-Black tree
+  - Slower insertion & removal, faster search
+- The heights of two subtrees from any node differ at most by `1`
+  - If at any point the heights differ by more than `1`, a rebalancing is performed via tree rotations
+
+<p align="center">
+  <img width=40% src="./assets/avl.png"/>
+</p>
 
 ### Heaps
 
@@ -256,6 +298,10 @@ def heapify(arr, n, i):
   arr = [1, 12, 9, 5, 6, 10]
   heapSort(arr)
 ```
+
+<p align="center">
+  <img width=30% src="./assets/maxheap.png"/>
+</p>
 
 #### Fibonacci Heaps <!-- omit in toc -->
 
@@ -1525,43 +1571,37 @@ def bucketSort(array):
 
 ### High-level Process
 
-1. Clarify functional requirements
-   1. What does the system do? How?
-   2. Define the use cases
-   3. Document any other additional features or nice-to-haves
-2. Set and justify technical priorities
-   1. Throughput
-   2. Latency
-   3. System availability
-   4. Any other architectural, non-functional requirements
-   5. Estimations and constraints
-      1. Traffic estimates
-         1. How many requests per month? Per second?
-      2. Storage estimates
-         1. Reads vs. writes percentage?
-            1. Reads/writes per second?
-         2. Consider 80-20 rule
-         3. Total storage required over 5 years
-      3. Bandwidth estimates
-      4. Memory estimates
+1. Clarify functional requirements and scope
+   1. Who is going to use it? *How* are they going to use it?
+   2. How many users?
+   3. What does the system *do*? What are its inputs and outputs?
+   4. Document any other additional features or nice-to-haves
+2. Estimations and constraints
+   1. Traffic estimates
+      1. How many requests per month? Per second?
+   2. Storage estimates
+      1. Reads to writes ratio?
+      2. Consider 80-20 rule
+      3. Total storage required over 5 years
+   3. Bandwidth estimates
 3. Define the APIs and data schemas
    1. Define the resources, parameters, their functions, & responses
    2. Define the data objects and their respective fields and estimated bytes
    3. Databases
       1. Determine relationship between records and weigh benefits of a SQL vs. NoSQL solution
       2. Sketch out schemas
-4. Build data transformations until requirements are met
-   1. Craft basic design and algorithm
-   2. Data partitioning and replication
-   3. Caching
-   4. Load balancing
-   5. Messaging
-5. Continuously iterate to scale, reduce latency, and eliminate points of failure or bottlenecks
+4. Create a high-level design
+   1. Sketch basic solution that includes the main components and the connections between them
+   2. Justify the ideas
+5. Design core components
+   1. Data partitioning and replication
+   2. Load balancing
+   3. Messaging
+6. Scale the design
    1. Caching
    2. Load balancing
-   3. Purging / DB cleanup
-   4. Telemetry
-   5. Security / permissions
+   3. Horizontal scaling
+   4. Sharding
 
 ### Caching
 
@@ -1750,6 +1790,21 @@ server = servers[vnodes[hash(key) % vnodes.length]]
   5. **Weighted round robin**: A variation of the above whereby servers are assigned a weight (indicating processing capacity, i.e. processor speed) and ordering the cycle in respect to that metric
   6. **IP hash**: IP of client is hashed to derive a server index to forward the request to
 
+### Reverse Proxies
+
+A server that sits in front of a back-end system and acts as the public-facing interface for all incoming requests. Provides a multitude of benefits:
+
+1. Security
+   1. A reverse proxy can deter DDoS attacks by blacklisting certain IPs, payload matching, or limiting the number of connections
+2. Scalability
+   1. The back-end service is free to change its configuration without affecting clients because the entry point to this service remains static
+3. Compression
+   1. Bandwidth can be conserved by compressing the server response prior to sending it to the client
+4. SSL termination
+   1. SSL encryption/decryption is computationally expensive and performing these operations at the reverse proxy level frees up resources for the back-end
+5. Caching
+   1. Response time and server load can be reduced by storing responses in a local cache and doing a lookup prior to forwarding requests to the back-end
+
 ### Distributed Systems
 
 #### Key characteristics <!-- omit in toc -->
@@ -1824,15 +1879,15 @@ server = servers[vnodes[hash(key) % vnodes.length]]
 | clear right-most bit (also power of 2 check) | `num & (num - 1)`                                 |
 | swap variables                               | `num1 ^= num2` -> `num2 ^=num1` -> `num1 ^= num2` |
 
-### XOR
+### XOR <!-- omit in toc -->
 
 An XOR between two numbers is the sum of the integers' binary representations, without taking carry into account (sum) *or* without taking *borrow* into account (difference). In other words, it's a sum of all bits where at least one of the bits is not set.
 
-#### Sum
+#### Sum <!-- omit in toc -->
 
 When summing two numbers, the carry-forward values need to be leveraged. To get these values, it follows that if an XOR `x^y` finds all bit differences, an AND `x&y` would provide all bit similarities. This result is then shifted over to the left once in order to properly align it with the XOR result. This process is then continuously repeated until the carry is 0.
 
-#### Difference
+#### Difference <!-- omit in toc -->
 
 For a difference between two numbers, the borrow values need to be indexed and squared against the XOR. The borrow can be derived using `((~x)&y) << 1`. The borrow is then used to repeat the above process until it is 0.
 
@@ -2439,12 +2494,14 @@ This layer is utilized by end-user software such as web browsers and email clien
 
 ## Powers of 2
 
-| Power          | Number            | Bytes |
-| -------------- | ----------------- | ----- |
-| 2<sup>10</sup> | 1024              | 1 KiB |
-| 2<sup>20</sup> | 1,048,576         | 1 MiB |
-| 2<sup>30</sup> | 1,073,741,824     | 1 GiB |
-| 2<sup>40</sup> | 1,099,511,627,776 | 1 PiB |
+| Power          | Number            | Bytes  |
+| -------------- | ----------------- | -----  |
+| 2<sup>8</sup>  | 256               | < 1 KiB|
+| 2<sup>10</sup> | 1024              | 1 KiB  |
+| 2<sup>20</sup> | 1,048,576         | 1 MiB  |
+| 2<sup>30</sup> | 1,073,741,824     | 1 GiB  |
+| 2<sup>32</sup> | 4,294,967,296     | 4 GiB  |
+| 2<sup>40</sup> | 1,099,511,627,776 | 1 TiB  |
 
 ## Miscellaneous
 
