@@ -131,7 +131,7 @@ A tree is an _undirected_ graph in which any two vertices are connected by _exac
 - Post-order: Visit the _right_ side of each node
 
 <p align="center">
-  <img width=30% src="./assets/tree_traversals.jpeg"/>
+  <img width=50% src="./assets/tree_traversals.jpeg"/>
 </p>
 
 #### Implementations <!-- omit in toc -->
@@ -158,7 +158,7 @@ Binary trees which have an additional sorting constraint such that **all** nodes
 A sub-graph of an undirected, connected graph which includes **all** vertices of the supergraph, trimmed down to contain the absolute _minimum number of edges_. The total number of spanning trees with `n` vertices that can be created from a complete graph is equal to `n`<sup>`(n-2)`</sup>.
 
 <p align="center">
-    <img width=30% src="./assets/st.jpg"/>
+    <img width=50% src="./assets/st.jpg"/>
   </p>
 
 ###### Minimum Spanning Tree
@@ -171,7 +171,7 @@ Algorithms:
 2. [Prim's Algorithm (edges)](#prims-algorithm)
 
 <p align="center">
-    <img width=30% src="./assets/mst.png"/>
+    <img width=50% src="./assets/mst.png"/>
   </p>
 
 ###### Shortest Path Tree
@@ -192,7 +192,7 @@ Algorithms:
 2. [Bellman-Ford's Algorithm](#bellman-fords-algorithm)
 
 <p align="center">
-    <img width=30% src="./assets/spt.png"/>
+    <img width=50% src="./assets/spt.png"/>
   </p>
 
 ##### Self-balancing Trees
@@ -216,7 +216,7 @@ A tree data structure that maintains sorted data and allows searches, *sequentia
 3. If it *can't* be accommodated, then the node is split into two. The median key is then promoted to the parent node. If the parent node itself is also full, the process is potentially repeated all the way back to the root node, in which case the height of the entire tree would be incremented by one
 
 <p align="center">
-  <img width=50% src="./assets/b-tree.png"/>
+  <img width=70% src="./assets/b-tree.png"/>
 </p>
 
 ###### Red-Black Trees
@@ -235,7 +235,7 @@ There are 4 main properties intrinsic to Red-Black trees:
 These properties thus reveal an axiom that a path from the root node to its _farthest_ leaf node is _no more than twice as long_ as the path from the root node to its _nearest_ leaf node (shortest path is entirely black nodes while the longest is of alternating colors). This ensures the tree is roughly height-balanced and therefore optimally efficient.
 
 <p align="center">
-  <img width=30% src="./assets/rbt.png"/>
+  <img width=50% src="./assets/rbt.png"/>
 </p>
 
 ###### AVL trees
@@ -249,7 +249,7 @@ A self-balancing binary search tree in which each node maintains extra informati
   - If at any point the heights differ by more than `1`, a rebalancing is performed via tree rotations
 
 <p align="center">
-  <img width=40% src="./assets/avl.png"/>
+  <img width=70% src="./assets/avl.png"/>
 </p>
 
 ### Heaps
@@ -300,7 +300,7 @@ def heapify(arr, n, i):
 ```
 
 <p align="center">
-  <img width=30% src="./assets/maxheap.png"/>
+  <img width=50% src="./assets/maxheap.png"/>
 </p>
 
 #### Fibonacci Heaps <!-- omit in toc -->
