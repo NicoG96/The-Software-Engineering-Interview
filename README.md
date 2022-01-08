@@ -37,7 +37,7 @@
       6. [Heap sort](#heap-sort)
       7. [Bucket Sort](#bucket-sort)
 3. [System Design](#system-design)
-   1. [High-level Process](#high-level-process)
+   1. [Template](#template)
    2. [Caching](#caching)
    3. [Data Partitioning](#data-partitioning)
    4. [CAP Theorem](#cap-theorem)
@@ -1569,39 +1569,62 @@ def bucketSort(array):
 
 ## System Design
 
-### High-level Process
+### Template
 
 1. Clarify functional requirements and scope
    1. Who is going to use it? *How* are they going to use it?
    2. How many users?
    3. What does the system *do*? What are its inputs and outputs?
-   4. Document any other additional features or nice-to-haves
+   4. Consistency vs availability?
+   5. Document any other additional features or nice-to-haves
 2. Estimations and constraints
-   1. Traffic estimates
-      1. How many requests per month? Per second?
+   1. Throughput/traffic estimates
+      1. How many queries per month? Per second?
+      2. Read-to-write ratio
    2. Storage estimates
-      1. Reads to writes ratio?
-      2. Consider 80-20 rule
-      3. Total storage required over 5 years
-   3. Bandwidth estimates
+      1. Total storage required over 5 years
+   3. Memory estimates
+      1. Consider 80-20 rule
+      2. What do we want to store in cache?
+      3. Approximate RAM required
+   4. Bandwidth estimates
+      1. QPS * payload
 3. Define the APIs and data schemas
-   1. Define the resources, parameters, their functions, & responses
-   2. Define the data objects and their respective fields and estimated bytes
-   3. Databases
-      1. Determine relationship between records and weigh benefits of a SQL vs. NoSQL solution
-      2. Sketch out schemas
-4. Create a high-level design
-   1. Sketch basic solution that includes the main components and the connections between them
-   2. Justify the ideas
-5. Design core components
-   1. Data partitioning and replication
-   2. Load balancing
-   3. Messaging
-6. Scale the design
-   1. Caching
-   2. Load balancing
-   3. Horizontal scaling
-   4. Sharding
+   1. Define the API: the resources, parameters, functions, & responses
+   2. Define the database schema: the fields and estimated bytes per record
+4. High-level design
+   1. Sketch a basic algorithm that includes the main components and the connections between them
+5. Scaling
+   1. Iterate through each component and scale individually
+      1. For the application layer, break down monolith into microservices
+   2. DNS
+   3. CDN
+      1. Push vs. pull TODO
+   4. Load Balancers
+      1. Active-passive
+      2. Active-active
+      3. Layer 4
+      4. Layer 7 TODO
+   5. Database
+      1. RDBMS
+         1. Master-slave
+         2. Master-master
+         3. Federation
+         4. Sharding/partitioning
+         5. Denormalization TODO
+      2. NoSQL
+         1. Key-value
+         2. Document
+         3. Wide-column
+         4. Graph TODO
+   6. Caching
+      1. Write-through
+      2. Write-behind
+      3. Cache-aside
+      4. Refresh-ahead TODO
+   7. Asynchronism
+      1. Message queues
+      2. Task queues TODO
 
 ### Caching
 
@@ -1616,9 +1639,11 @@ def bucketSort(array):
 
   1. **Write-through cache**
 
-     - Data is written into the cache and DB simultaneously
+     - Data is written into the cache and DB synchronously
      - Sacrifices latency for a minimized risk of data loss/inconsistency
        - This is because each update necessitates 2 writes
+     - Disadvantages
+       - Most written data will never end up being read (but this can be minimized with a TTL)
 
   2. **Write-around cache**
 
