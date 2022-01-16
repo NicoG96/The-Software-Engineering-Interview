@@ -199,7 +199,7 @@ Algorithms:
 
 ###### B-Trees
 
-A tree data structure that maintains sorted data and allows searches, *sequential access*, insertions, and deletions in logarithmic time. This type of tree is well-suited for storage systems that read and write relatively large blocks of data (i.e. disks), and as such, it is commonly implemented in database and file systems.
+A tree data structure that maintains sorted data and allows searches, _sequential access_, insertions, and deletions in logarithmic time. This type of tree is well-suited for storage systems that read and write relatively large blocks of data (i.e. disks), and as such, it is commonly implemented in database and file systems.
 
 **Definition**
 
@@ -213,7 +213,7 @@ A tree data structure that maintains sorted data and allows searches, *sequentia
 
 1. Find a leaf node where the item should be inserted by iteratively comparing existing keys to the item-to-be-inserted
 2. If a leaf node can accommodate another key, insert into the leaf
-3. If it *can't* be accommodated, then the node is split into two. The median key is then promoted to the parent node. If the parent node itself is also full, the process is potentially repeated all the way back to the root node, in which case the height of the entire tree would be incremented by one
+3. If it _can't_ be accommodated, then the node is split into two. The median key is then promoted to the parent node. If the parent node itself is also full, the process is potentially repeated all the way back to the root node, in which case the height of the entire tree would be incremented by one
 
 <p align="center">
   <img width=70% src="./assets/b-tree.png"/>
@@ -741,7 +741,7 @@ def dfs(graph, start, visited=None):
 ```
 
 ```python
-# Given a binary tree and a number ‘S’, 
+# Given a binary tree and a number ‘S’,
 # find if the tree has a path from root-to-leaf such that the sum of all the node values of that path equals ‘S’
 
 def has_path(root, sum):
@@ -972,15 +972,15 @@ A general algorithm for finding **all** (or some) solutions to computational pro
 def all_paths_from_src_to_target(graph: List[List[int]]) -> List[List[int]]:
  paths = []
  target = len(graph)-1
- 
- def backtrack(node, path):          
+
+ def backtrack(node, path):
   if node == target:
    paths.append(list(path))
    return
- 
+
   for neighbor in graph[node]:
    backtrack(neighbor, path + [neighbor])
-  
+
  backtrack(0, [0])
  return paths
 ```
@@ -989,7 +989,7 @@ def all_paths_from_src_to_target(graph: List[List[int]]) -> List[List[int]]:
 
 ##### Topological Sorting
 
-A graph traversal in which each node `v` is visited only *after* all of its dependencies are visited first. _Note_: multiple topological sortings can exist for any given graph.
+A graph traversal in which each node `v` is visited only _after_ all of its dependencies are visited first. _Note_: multiple topological sortings can exist for any given graph.
 
 ###### Limitations
 
@@ -1095,34 +1095,34 @@ def minCostConnectPoints(self, points: List[List[int]]) -> int:
         for j in range(i+1, len(points)):
             cost = self.calcManhattan(points[i], points[j])
             edges.append((cost, i, j))
-            
+
     heapq.heapify(edges)
     while edges:
         edge = heapq.heappop(edges)
         sum += self.union(edge)
     return sum
-    
+
 def init(self, sz):
     self.roots = [x for x in range(sz)]
     self.ranks = [0 for _ in range(sz)]
-              
+
 def calcManhattan(self, pt1: List[int], pt2: List[int]):
     return abs(pt1[0] - pt2[0]) + abs(pt1[1] - pt2[1])
-              
+
 def find(self, x):
     if self.roots[x] != x:
         self.roots[x] = self.find(self.roots[x])
     return self.roots[x]
-              
+
 def union(self, data):
     cost, x, y = data
     rootx = self.find(x)
     rooty = self.find(y)
     sum = 0
-    
+
     if rootx != rooty:
         sum += cost
-        
+
         if self.ranks[rootx] == self.ranks[rooty]:
             self.roots[rooty] = rootx
             self.ranks[rootx] += 1
@@ -1130,7 +1130,7 @@ def union(self, data):
             self.roots[rooty] = rootx
         else:
             self.roots[rootx] = rooty
-            
+
     return sum
 ```
 
@@ -1449,7 +1449,7 @@ def bubble_sort(array):
     - `n//2 - 1`, where `n` is the total number of nodes, gives us the index to start at
 - `O(N⋅logN)`
 
-##### Algorithm 
+##### Algorithm
 
 1. Heapify
    1. The discrete algorithm that is used to construct a heap
@@ -1572,9 +1572,9 @@ def bucketSort(array):
 ### Template
 
 1. Clarify functional requirements and scope
-   1. Who is going to use it? *How* are they going to use it?
+   1. Who is going to use it? _How_ are they going to use it?
    2. How many users?
-   3. What does the system *do*? What are its inputs and outputs?
+   3. What does the system _do_? What are its inputs and outputs?
    4. Consistency vs availability?
    5. Document any other additional features or nice-to-haves
 2. Estimations and constraints
@@ -1588,7 +1588,7 @@ def bucketSort(array):
       2. What do we want to store in cache?
       3. Approximate RAM required
    4. Bandwidth estimates
-      1. QPS * payload
+      1. QPS \* payload
 3. Define the APIs and data schemas
    1. Define the API: the resources, parameters, functions, & responses
    2. Define the database schema: the fields and estimated bytes per record
@@ -1906,7 +1906,7 @@ A server that sits in front of a back-end system and acts as the public-facing i
 
 ### XOR <!-- omit in toc -->
 
-An XOR between two numbers is the sum of the integers' binary representations, without taking carry into account (sum) *or* without taking *borrow* into account (difference). In other words, it's a sum of all bits where at least one of the bits is not set.
+An XOR between two numbers is the sum of the integers' binary representations, without taking carry into account (sum) _or_ without taking _borrow_ into account (difference). In other words, it's a sum of all bits where at least one of the bits is not set.
 
 #### Sum <!-- omit in toc -->
 
@@ -1921,18 +1921,18 @@ For a difference between two numbers, the borrow values need to be indexed and s
 ```python
 def get_sum(a, b):
   if abs(a) < abs(b): return self.getSum(b,a)
-          
+
   x, y = abs(a), abs(b)
   sign = 1 if a > 0 else -1
 
   if a*b >= 0:
     while y:
       x, y = x^y, (x&y) << 1
-          
+
   else:
     while y:
       x, y = x^y, ((~x)&y) << 1
-      
+
   return x*sign
 ```
 
@@ -2307,6 +2307,7 @@ class Product:
     ```python
     sorted(x, key=lambda x: x[1], reverse=True)
     ```
+
   - `O(nlogn)` time complexity and `O(n)` space
 
 ##### Misc
@@ -2519,14 +2520,14 @@ This layer is utilized by end-user software such as web browsers and email clien
 
 ## Powers of 2
 
-| Power          | Number            | Bytes  |
-| -------------- | ----------------- | -----  |
-| 2<sup>8</sup>  | 256               | < 1 KiB|
-| 2<sup>10</sup> | 1024              | 1 KiB  |
-| 2<sup>20</sup> | 1,048,576         | 1 MiB  |
-| 2<sup>30</sup> | 1,073,741,824     | 1 GiB  |
-| 2<sup>32</sup> | 4,294,967,296     | 4 GiB  |
-| 2<sup>40</sup> | 1,099,511,627,776 | 1 TiB  |
+| Power          | Number            | Bytes   |
+| -------------- | ----------------- | ------- |
+| 2<sup>8</sup>  | 256               | < 1 KiB |
+| 2<sup>10</sup> | 1024              | 1 KiB   |
+| 2<sup>20</sup> | 1,048,576         | 1 MiB   |
+| 2<sup>30</sup> | 1,073,741,824     | 1 GiB   |
+| 2<sup>32</sup> | 4,294,967,296     | 4 GiB   |
+| 2<sup>40</sup> | 1,099,511,627,776 | 1 TiB   |
 
 ## Miscellaneous
 
