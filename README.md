@@ -38,20 +38,21 @@
       7. [Bucket Sort](#bucket-sort)
 3. [System Design](#system-design)
    1. [Template](#template)
-   2. [Caching](#caching)
-   3. [CAP Theorem](#cap-theorem)
-   4. [Consistent Hashing](#consistent-hashing)
-   5. [Load Balancing](#load-balancing)
-   6. [Reverse Proxies](#reverse-proxies)
-   7. [Databases](#databases)
+   2. [Content Delivery Networks](#content-delivery-networks)
+   3. [Caching](#caching)
+   4. [CAP Theorem](#cap-theorem)
+   5. [Consistent Hashing](#consistent-hashing)
+   6. [Load Balancing](#load-balancing)
+   7. [Reverse Proxies](#reverse-proxies)
+   8. [Databases](#databases)
       1. [Partitioning](#partitioning)
       2. [RDBMS](#rdbms)
       3. [NoSQL](#nosql)
-   8. [Asynchronism](#asynchronism)
+   9. [Asynchronism](#asynchronism)
       1. [Message queues](#message-queues)
       2. [Task queues](#task-queues)
-   9. [Distributed Systems](#distributed-systems)
-   10. [Miscellaneous](#miscellaneous)
+   10. [Distributed Systems](#distributed-systems)
+   11. [Miscellaneous](#miscellaneous)
 4. [Python](#python)
 5. [Big-O](#big-o)
 6. [Bit Manipulation](#bit-manipulation)
@@ -60,8 +61,8 @@
 9. [Miscellaneous](#miscellaneous-1)
 10. [Coding Assessment](#coding-assessment)
 11. [Quick References](#quick-references)
-    1. [Powers of 10](#powers-of-10)
-    2. [Powers of 2](#powers-of-2)
+   1. [Powers of 10](#powers-of-10)
+   2. [Powers of 2](#powers-of-2)
 12. [Resources](#resources)
 
 ## Data Structures
@@ -1580,20 +1581,19 @@ def bucketSort(array):
    1. Who is going to use it? _How_ are they going to use it?
    2. How many users?
    3. What does the system _do_? What are its inputs and outputs?
-   4. Consistency vs availability?
-   5. Document any other additional features or nice-to-haves
+   4. Additional non-functional requirements (i.e. consistency vs. availability)
 2. Estimations and constraints
    1. Throughput/traffic estimates
-      1. How many queries per month? Per second?
+      1. How many queries per second?
       2. Read-to-write ratio
    2. Storage estimates
       1. Total storage required over 5 years
    3. Memory estimates
-      1. Consider 80-20 rule
-      2. What do we want to store in cache?
-      3. Approximate RAM required
+      1. What do we want to store in cache?
+         1. Consider 80-20 rule
+      2. Approximate RAM required
    4. Bandwidth estimates
-      1. QPS \* payload
+      1. QPS * payload
 3. Define the APIs and data schemas
    1. Define the API: the resources, parameters, functions, & responses
    2. Define the database schema: the fields and estimated bytes per record
@@ -1601,22 +1601,22 @@ def bucketSort(array):
    1. Sketch a basic algorithm that includes the main components and the connections between them
 5. Scaling
    1. Iterate through each component and scale individually
-      1. For the application layer, break down monolith into microservices
+      1. For the application layer, break down into microservices
    2. DNS
-   3. CDN
-      1. Push vs. pull TODO
+   3. [CDN](#content-delivery-networks)
+      1. Push vs. pull
    4. [Load Balancers](#load-balancing)
       1. Active-passive
       2. Active-active
       3. Layer 4
       4. Layer 7
-   5. Database
+   5. [Database](#databases)
       1. [RDBMS](#sql)
          1. Master-slave
          2. Master-master
          3. Federation
          4. Sharding/partitioning
-         5. Denormalization TODO
+         5. Denormalization
       2. [NoSQL](#nosql)
          1. Key-value
          2. Document
@@ -1631,6 +1631,20 @@ def bucketSort(array):
       1. Message queues
       2. Task queues
 
+### Content Delivery Networks
+
+Content delivery networks are a globally distributed network of proxy servers that aid in serving clients static files such as HMTL, CSS, and JS to improve end-user experience and reduce server load.
+
+#### Push CDNs <!-- omit in toc -->
+
+Push CDNs receive new content whenever changes occur on the upstream server. The onus of updating the CDN (providing content and updating URLs to point to the CDN) lies squarely with the application server. This type of CDN is best-suited for websites with a small amount of traffic and/or ones which are not updated frequently.
+
+#### Pull CDNs <!-- omit in toc -->
+
+Pull CDNs, on the other hand, poll the server for new updates. Time-to-live (TTLs) are used to determine how long content is cached for. Pull CDNs minimize the storage space but can potentially create redundant traffic if the TTL has expired and is re-requested.
+
+These types of CDNs are optimal for sites with heavy traffic as they inherently only hold the most-recently requested content.
+
 ### Caching
 
 - Recently requested data is likely to be requested again
@@ -1643,7 +1657,6 @@ def bucketSort(array):
 - If data is modified on the DB, its cached version should be invalidated. A problem of **consistency**.
 
   1. **Write-through cache**
-
      - Data is written into the cache and DB synchronously
      - Sacrifices latency for a minimized risk of data loss/inconsistency
        - This is because each update necessitates 2 writes
@@ -1651,7 +1664,6 @@ def bucketSort(array):
        - Most written data will never end up being read (but this can be minimized with a TTL)
 
   2. **Write-around cache**
-
      - Data is written directly to storage, bypassing cache entirely
      - Pro: Reduces the risk of the cache being flooded with writes that ultimately won't be read (80-20 rule)
      - Con: Read requests for recently-written data are likely to result in a cache miss
@@ -1663,8 +1675,12 @@ def bucketSort(array):
      - Writes to permanent storage are done after a specified interval or under defined conditions
      - Pro: Low latency, high throughput
      - Con: Increased risk of data loss if cache were to fail
-  4. write behind?
-  5. refresh ahead? TODO
+  
+  4. **Refresh-ahead cache**
+     - Cache automatically and asynchronously reloads any recently-accessed cache entry prior to its TTL expiration
+     - Reduces latency when an entry expires and a fresh, synchronous request needs to be sent to the data store
+     - If entry expired, synchronous request is made
+     - If close to expiring, async request is made
 
 - Eviction policies
   1. FIFO: first in, first out
@@ -1749,17 +1765,19 @@ server = servers[vnodes[hash(key) % vnodes.length]]
 
 ### Load Balancing
 
-- Improves responsiveness and availability of applications, websites, databases
-  - Keeps track of service health using periodic healthchecks
-- Can be placed between:
+Load balancers improve the responsiveness and availability of applications, websites, databases, etc by distributing the load across a host of servers.
 
-  - Client and webserver
-  - Web server and app server
-  - App server and database server
+#### Redundancy
 
-- Clusters of LBs can be formed to improve redundancy
-  - Each of the LBs health checks one another
-  - If one were to fail, then the healthy node takes over (green/blue stack)
+Load balancers introduce a single point of failure and need to be engineered correctly to continue handling requests in the event of a failure.
+
+##### Active-passive
+
+In this schema, one load balancer is kept as the active node while a secondary node is on stand-by at all times, ready to replace the active node if it were to fail. The secondary node sends occasional health checks to the primary node to ensure it is still alive.
+
+##### Active-active
+
+As the name implies, this schema has 2 active load balancers. TODO
 
 #### Routing methods <!-- omit in toc -->
 
@@ -1768,9 +1786,8 @@ server = servers[vnodes[hash(key) % vnodes.length]]
 3. **Least bandwidth**: priority given to server with least amount of traffic, in terms of Mbps
 4. **Round robin**: a simple algorithm that distributes load equally among all servers by running through a cycle
 5. **Weighted round robin**: A variation of the above whereby servers are assigned a weight (indicating processing capacity, i.e. processor speed) and ordering the cycle in respect to that metric
-6. **IP hash**: IP of client is hashed to derive a server index to forward the request to
-7. Layer 4
-8. Layer 7 TODO active-active, passive active
+6. **Layer 4**: Leveraging the transport layer, this type of routing is facilitated by data such as the source/destination IPs and ports
+7. **Layer 7**: At layer 7, the application layer, this type of routing inspects the payload (header, body, cookies) of the request to determine an appropriate server
 
 ### Reverse Proxies
 
@@ -1843,7 +1860,18 @@ A server that sits in front of a back-end system and acts as the public-facing i
 
 #### RDBMS
 
-#### Indexing <!-- omit in toc -->
+#### Replication
+
+1. Leader-follower
+   1. TODO
+2. Leader-leader
+   1. 
+3. Federation
+   1. 
+4. Denormalization
+   1. The practice of adding datasets from a remote node onto a local node to reduce the costs of complex joins over a network
+
+##### Indexing <!-- omit in toc -->
 
 - Used to improve query response time by facilitating faster searching
 - Implemented with a sorted list of (narrowly-scoped) data that can be used to look something up
@@ -1869,7 +1897,7 @@ A server that sits in front of a back-end system and acts as the public-facing i
 ###### Key-Value stores
 
 - Data is stored in array of KV pairs
-- Redis, Voldemort, Dynamo
+- Redis, Voldemort, DynamoDB
 
 ###### Doc Databases
 
@@ -1885,11 +1913,19 @@ A server that sits in front of a back-end system and acts as the public-facing i
 - Best suited for large datasets
 - Cassandra, HBase
 
+<p align="center">
+  <img width=70% src="./assets/wide_column.png"/>
+</p>
+
 ###### Graph Databases
 
 - Store data whose relations are best represented in a graph
 - Contains nodes (entities), properties (entity metadata), and lines (connections between entities)
 - Neo4J, InfiniteGraph
+
+<p align="center">
+  <img width=70% src="./assets/graph.png"/>
+</p>
 
 #### SQL vs. NoSQL <!-- omit in toc -->
 
@@ -1937,7 +1973,6 @@ TODO
 
 #### Task queues
 
-TODO
 
 ### Distributed Systems
 
