@@ -38,26 +38,32 @@
       7. [Bucket Sort](#bucket-sort)
 3. [System Design](#system-design)
    1. [Template](#template)
-   2. [Caching](#caching)
-   3. [Data Partitioning](#data-partitioning)
+   2. [Content Delivery Networks](#content-delivery-networks)
+   3. [Caching](#caching)
    4. [CAP Theorem](#cap-theorem)
    5. [Consistent Hashing](#consistent-hashing)
    6. [Load Balancing](#load-balancing)
    7. [Reverse Proxies](#reverse-proxies)
-   8. [Distributed Systems](#distributed-systems)
-   9. [Miscellaneous](#miscellaneous)
-4. [Big-O](#big-o)
-5. [Bit Manipulation](#bit-manipulation)
-6. [Dynamic Programming](#dynamic-programming-1)
-7. [Languages](#languages)
-   1. [Python](#python)
-   2. [SQL](#sql)
+   8. [Databases](#databases)
+      1. [Partitioning](#partitioning)
+      2. [RDBMS](#rdbms)
+      3. [NoSQL](#nosql)
+   9. [Asynchronism](#asynchronism)
+      1. [Message queues](#message-queues)
+      2. [Task queues](#task-queues)
+   10. [Distributed Systems](#distributed-systems)
+   11. [Miscellaneous](#miscellaneous)
+4. [Python](#python)
+5. [Big-O](#big-o)
+6. [Bit Manipulation](#bit-manipulation)
+7. [Dynamic Programming](#dynamic-programming-1)
 8. [OSI Model](#osi-model)
-9. [Powers of 10](#powers-of-10)
-10. [Powers of 2](#powers-of-2)
-11. [Miscellaneous](#miscellaneous-1)
-12. [Coding Assessment](#coding-assessment)
-13. [Resources](#resources)
+9. [Miscellaneous](#miscellaneous-1)
+10. [Coding Assessment](#coding-assessment)
+11. [Quick References](#quick-references)
+   1. [Powers of 10](#powers-of-10)
+   2. [Powers of 2](#powers-of-2)
+12. [Resources](#resources)
 
 ## Data Structures
 
@@ -1575,20 +1581,19 @@ def bucketSort(array):
    1. Who is going to use it? _How_ are they going to use it?
    2. How many users?
    3. What does the system _do_? What are its inputs and outputs?
-   4. Consistency vs availability?
-   5. Document any other additional features or nice-to-haves
+   4. Additional non-functional requirements (i.e. consistency vs. availability)
 2. Estimations and constraints
    1. Throughput/traffic estimates
-      1. How many queries per month? Per second?
+      1. How many queries per second?
       2. Read-to-write ratio
    2. Storage estimates
       1. Total storage required over 5 years
    3. Memory estimates
-      1. Consider 80-20 rule
-      2. What do we want to store in cache?
-      3. Approximate RAM required
+      1. What do we want to store in cache?
+         1. Consider 80-20 rule
+      2. Approximate RAM required
    4. Bandwidth estimates
-      1. QPS \* payload
+      1. QPS * payload
 3. Define the APIs and data schemas
    1. Define the API: the resources, parameters, functions, & responses
    2. Define the database schema: the fields and estimated bytes per record
@@ -1596,35 +1601,49 @@ def bucketSort(array):
    1. Sketch a basic algorithm that includes the main components and the connections between them
 5. Scaling
    1. Iterate through each component and scale individually
-      1. For the application layer, break down monolith into microservices
+      1. For the application layer, break down into microservices
    2. DNS
-   3. CDN
-      1. Push vs. pull TODO
-   4. Load Balancers
+   3. [CDN](#content-delivery-networks)
+      1. Push vs. pull
+   4. [Load Balancers](#load-balancing)
       1. Active-passive
       2. Active-active
       3. Layer 4
-      4. Layer 7 TODO
-   5. Database
-      1. RDBMS
+      4. Layer 7
+   5. [Database](#databases)
+      1. [RDBMS](#sql)
          1. Master-slave
          2. Master-master
          3. Federation
          4. Sharding/partitioning
-         5. Denormalization TODO
-      2. NoSQL
+         5. Denormalization
+      2. [NoSQL](#nosql)
          1. Key-value
          2. Document
          3. Wide-column
-         4. Graph TODO
-   6. Caching
+         4. Graph
+   6. [Caching](#caching)
       1. Write-through
       2. Write-behind
       3. Cache-aside
-      4. Refresh-ahead TODO
-   7. Asynchronism
+      4. Refresh-ahead
+   7. [Asynchronism](#asynchronism)
       1. Message queues
-      2. Task queues TODO
+      2. Task queues
+
+### Content Delivery Networks
+
+Content delivery networks are a globally distributed network of proxy servers that aid in serving clients static files such as HMTL, CSS, and JS to improve end-user experience and reduce server load.
+
+#### Push CDNs <!-- omit in toc -->
+
+Push CDNs receive new content whenever changes occur on the upstream server. The onus of updating the CDN (providing content and updating URLs to point to the CDN) lies squarely with the application server. This type of CDN is best-suited for websites with a small amount of traffic and/or ones which are not updated frequently.
+
+#### Pull CDNs <!-- omit in toc -->
+
+Pull CDNs, on the other hand, poll the server for new updates. Time-to-live (TTLs) are used to determine how long content is cached for. Pull CDNs minimize the storage space but can potentially create redundant traffic if the TTL has expired and is re-requested.
+
+These types of CDNs are optimal for sites with heavy traffic as they inherently only hold the most-recently requested content.
 
 ### Caching
 
@@ -1638,7 +1657,6 @@ def bucketSort(array):
 - If data is modified on the DB, its cached version should be invalidated. A problem of **consistency**.
 
   1. **Write-through cache**
-
      - Data is written into the cache and DB synchronously
      - Sacrifices latency for a minimized risk of data loss/inconsistency
        - This is because each update necessitates 2 writes
@@ -1646,7 +1664,6 @@ def bucketSort(array):
        - Most written data will never end up being read (but this can be minimized with a TTL)
 
   2. **Write-around cache**
-
      - Data is written directly to storage, bypassing cache entirely
      - Pro: Reduces the risk of the cache being flooded with writes that ultimately won't be read (80-20 rule)
      - Con: Read requests for recently-written data are likely to result in a cache miss
@@ -1658,6 +1675,12 @@ def bucketSort(array):
      - Writes to permanent storage are done after a specified interval or under defined conditions
      - Pro: Low latency, high throughput
      - Con: Increased risk of data loss if cache were to fail
+  
+  4. **Refresh-ahead cache**
+     - Cache automatically and asynchronously reloads any recently-accessed cache entry prior to its TTL expiration
+     - Reduces latency when an entry expires and a fresh, synchronous request needs to be sent to the data store
+     - If entry expired, synchronous request is made
+     - If close to expiring, async request is made
 
 - Eviction policies
   1. FIFO: first in, first out
@@ -1666,58 +1689,6 @@ def bucketSort(array):
   4. MRU: most recently used
   5. LFU: least frequently used
   6. RR: random replacement
-
-### Data Partitioning
-
-#### Methods <!-- omit in toc -->
-
-1. **Horizontal (Sharding)**
-   - All partitions share the same schema
-   - Each partition is a shard that holds a specific subset of data
-     - e.g. In a `Places` table, we partition based on ZIP codes. ZIP codes under `xyz` threshold go into `Server1`, otherwise they go into `Server2`
-       - Can be problematic if the range value is not thoroughly vetted: the tables can become easily unbalanced
-       - Onerous to change the partition key after system is in operation
-   - Common problems
-     - Most constraints are due to the fact that a horizontally distributed system, by definition, requires operations across multiple servers
-     - **Joins & denormalization**
-       - Denormalization: a strategy that DBAs employ to increase the performance of a DB by adding redundant data to the DB so as to reduce the operational cost of queries which combine data from multiple sources into a single source
-       - Normalization: organizing a DB into tables to promote a given use
-       - Cons: how do we address data inconsistency?
-
-<p align="center">
-  <img width=70% src="./assets/horizontal_partitioning.png"/>
-</p>
-
-2. **Vertical**
-   - Partitions data based on an abstract concept or feature
-     - Each partition holds a subset of the _fields_ within a certain table
-   - Ideal for reducing the I/O costs associated with frequently-accessed items
-   - Can be problematic as growth could beget a further partitioning of the table
-
-<p align="center">
-  <img width=80% src="./assets/vertical_partitioning.png"/>
-</p>
-
-3. **Directory-based**
-   - Loosely-coupled approach that creates a lookup service that is cognizant of the paritioning scheme and abstracts away
-     interfacing with the DB
-     - Contains the mapping between PKs and servers
-   - Flexible as we can add servers to DB pool or change partition scheme without application impact
-
-#### Criteria <!-- omit in toc -->
-
-- **Key or hash-based partitioning**
-  - Applies hash `f(x)` to a key attribute `x` of an entity to yield a unique hash number that can then be used for partitioning
-    - e.g. If we have `y` servers, we can derive a partition index by applying a modulo to the hash result by `f(x) % y = index_partition`
-- **List partitioning**
-  - Each partition is assigned a list of values
-  - Appropriate partition for storage can be retrieved by the server's list
-    - e.g. Country-based lists
-- **Round robin**
-  - A uniform data distribution scheme
-- **Composite**
-  - Any of the above in combination
-    - e.g. A list-based partitioning scheme than then follows a hash-based partition
 
 ### CAP Theorem
 
@@ -1794,26 +1765,29 @@ server = servers[vnodes[hash(key) % vnodes.length]]
 
 ### Load Balancing
 
-- Improves responsiveness and availability of applications, websites, DBs
-  - Keeps track of service health using periodic healthchecks
-- Can be placed between:
+Load balancers improve the responsiveness and availability of applications, websites, databases, etc by distributing the load across a host of servers.
 
-  - Client and webserver
-  - Web server and app server
-  - App server and database server
+#### Redundancy
 
-- Clusters of LBs can be formed to improve redundancy
+Load balancers introduce a single point of failure and need to be engineered correctly to continue handling requests in the event of a failure.
 
-  - Each of the LBs health checks one another
-  - If one were to fail, then the healthy node takes over (Green/Blue stack)
+##### Active-passive
 
-- **Routing methods**
-  1. **Least connections**: server with fewest active connections is given priority
-  2. **Lowest latency**: priority given to server with minimal response time
-  3. **Least bandwidth**: priority given to server with least amount of traffic, in terms of Mbps
-  4. **Round robin**: a simple algorithm that distributes load equally among all servers by running through a cycle
-  5. **Weighted round robin**: A variation of the above whereby servers are assigned a weight (indicating processing capacity, i.e. processor speed) and ordering the cycle in respect to that metric
-  6. **IP hash**: IP of client is hashed to derive a server index to forward the request to
+In this schema, one load balancer is kept as the active node while a secondary node is on stand-by at all times, ready to replace the active node if it were to fail. The secondary node sends occasional health checks to the primary node to ensure it is still alive.
+
+##### Active-active
+
+As the name implies, this schema has 2 active load balancers. TODO
+
+#### Routing methods <!-- omit in toc -->
+
+1. **Least connections**: server with fewest active connections is given priority
+2. **Lowest latency**: priority given to server with minimal response time
+3. **Least bandwidth**: priority given to server with least amount of traffic, in terms of Mbps
+4. **Round robin**: a simple algorithm that distributes load equally among all servers by running through a cycle
+5. **Weighted round robin**: A variation of the above whereby servers are assigned a weight (indicating processing capacity, i.e. processor speed) and ordering the cycle in respect to that metric
+6. **Layer 4**: Leveraging the transport layer, this type of routing is facilitated by data such as the source/destination IPs and ports
+7. **Layer 7**: At layer 7, the application layer, this type of routing inspects the payload (header, body, cookies) of the request to determine an appropriate server
 
 ### Reverse Proxies
 
@@ -1829,6 +1803,176 @@ A server that sits in front of a back-end system and acts as the public-facing i
    1. SSL encryption/decryption is computationally expensive and performing these operations at the reverse proxy level frees up resources for the back-end
 5. Caching
    1. Response time and server load can be reduced by storing responses in a local cache and doing a lookup prior to forwarding requests to the back-end
+
+### Databases
+
+#### Partitioning
+
+##### Methods <!-- omit in toc -->
+
+1. **Horizontal (Sharding)**
+   - All partitions share the same schema
+   - Each partition is a shard that holds a specific subset of data
+     - e.g. In a `Places` table, we partition based on ZIP codes. ZIP codes under `xyz` threshold go into `Server1`, otherwise they go into `Server2`
+       - Can be problematic if the range value is not thoroughly vetted: the tables can become easily unbalanced
+       - Onerous to change the partition key after system is in operation
+   - Common problems
+     - Most constraints are due to the fact that a horizontally distributed system, by definition, requires operations across multiple servers
+     - **Joins & denormalization**
+       - Denormalization: a strategy that DBAs employ to increase the performance of a DB by adding redundant data to the DB so as to reduce the operational cost of queries which combine data from multiple sources into a single source
+       - Normalization: organizing a DB into tables to promote a given use
+       - Cons: how do we address data inconsistency?
+
+<p align="center">
+  <img width=70% src="./assets/horizontal_partitioning.png"/>
+</p>
+
+2. **Vertical**
+   - Partitions data based on an abstract concept or feature
+     - Each partition holds a subset of the _fields_ within a certain table
+   - Ideal for reducing the I/O costs associated with frequently-accessed items
+   - Can be problematic as growth could beget a further partitioning of the table
+
+<p align="center">
+  <img width=80% src="./assets/vertical_partitioning.png"/>
+</p>
+
+3. **Directory-based**
+   - Loosely-coupled approach that creates a lookup service that is cognizant of the paritioning scheme and abstracts away
+     interfacing with the DB
+     - Contains the mapping between PKs and servers
+   - Flexible as we can add servers to DB pool or change partition scheme without application impact
+
+#### Criteria <!-- omit in toc -->
+
+- **Key or hash-based partitioning**
+  - Applies hash `f(x)` to a key attribute `x` of an entity to yield a unique hash number that can then be used for partitioning
+    - e.g. If we have `y` servers, we can derive a partition index by applying a modulo to the hash result by `f(x) % y = index_partition`
+- **List partitioning**
+  - Each partition is assigned a list of values
+  - Appropriate partition for storage can be retrieved by the server's list
+    - e.g. Country-based lists
+- **Round robin**
+  - A uniform data distribution scheme
+- **Composite**
+  - Any of the above in combination
+    - e.g. A list-based partitioning scheme than then follows a hash-based partition
+
+#### RDBMS
+
+#### Replication
+
+1. Leader-follower
+   1. TODO
+2. Leader-leader
+   1. 
+3. Federation
+   1. 
+4. Denormalization
+   1. The practice of adding datasets from a remote node onto a local node to reduce the costs of complex joins over a network
+
+##### Indexing <!-- omit in toc -->
+
+- Used to improve query response time by facilitating faster searching
+- Implemented with a sorted list of (narrowly-scoped) data that can be used to look something up
+  - i.e. Table of contents
+- Decreases write performance because for every write to a table, the index has to be written as well
+
+##### Order of Operations <!-- omit in toc -->
+
+1. `FROM`
+2. `WHERE`
+3. `GROUP BY`
+4. `HAVING`
+   - requires an aggregation function
+     - i.e. `HAVING sum(population) > 200,000`
+5. `SELECT`
+6. `ORDER BY` (can use a `SELECT` alias)
+7. `LIMIT`
+
+#### NoSQL
+
+##### Types
+
+###### Key-Value stores
+
+- Data is stored in array of KV pairs
+- Redis, Voldemort, DynamoDB
+
+###### Doc Databases
+
+- Data is stored in documents (instead of rows and columns) and grouped together in collections
+- Each document can have an entirely different structure
+- CouchDB, MongoDB
+
+###### Wide-Column Databases
+
+- Instead of tables, column families are used as containers for rows
+- All of the columns do not need to be known up front
+  - Each row doesn't have to have same number of columns
+- Best suited for large datasets
+- Cassandra, HBase
+
+<p align="center">
+  <img width=70% src="./assets/wide_column.png"/>
+</p>
+
+###### Graph Databases
+
+- Store data whose relations are best represented in a graph
+- Contains nodes (entities), properties (entity metadata), and lines (connections between entities)
+- Neo4J, InfiniteGraph
+
+<p align="center">
+  <img width=70% src="./assets/graph.png"/>
+</p>
+
+#### SQL vs. NoSQL <!-- omit in toc -->
+
+##### ACID vs. BASE <!-- omit in toc -->
+
+- ACID
+
+  - Atomicity
+    - Transactions are either performed in whole or they are not. There is no concept of a partially-completed transaction
+  - Consistency
+    - Ensures that a transaction only make changes in pre-defined, predictable ways. It will not corrupt the database in any way
+  - Isolation
+    - Transactions are performed with no other concurrent processes being performed on the data. No race conditions will arise
+  - Durability
+    - Guarantees that, once written, the data is persisted and will stay persisted, even in the event of a system failure
+  - Strong focus on consistency and availability
+
+- BASE
+
+  - Basically available
+    - Does not enforce immediate consistency, but rather guarantees availability of data (in terms of CAP theorem)
+  - Soft state
+    - The state of a system may change over time due to eventual consistency
+  - Eventually consistent
+    - **Eventual consistency**: a system becomes consistent over time
+  - Strong focus on availability and partition tolerance
+
+- NoSQL is better at horizontal scaling because the objects exist as a self-contained file
+  with no relations to any other object
+  - Therefore, no joins to other objects (that exist on other servers) are required
+
+|             | SQL                                                | NoSQL                |
+| ----------- | -------------------------------------------------- | -------------------- |
+| Storage     | Tables (rows are entities, columns are datapoints) | Objects              |
+| Schemas     | Fixed, pre-defined                                 | Dynamic, non-uniform |
+| Querying    | SQL                                                | UnQL                 |
+| Scalability | Vertically                                         | Horizontally         |
+| Reliability | Consistent, available                              | Performant, scalable |
+
+### Asynchronism
+
+#### Message queues
+
+TODO
+
+#### Task queues
+
 
 ### Distributed Systems
 
@@ -1880,6 +2024,362 @@ A server that sits in front of a back-end system and acts as the public-facing i
 
 - Typically used to filter, log, encrypt, decrypt, &/or transform requests
 - An ideal location to implement caching
+
+## Python
+
+### Dictionaries <!-- omit in toc -->
+
+#### Dict <!-- omit in toc -->
+
+- `for key in dict` only iterates over keys
+  - Use `dict.items()` for both keys and values
+- Intersections between dictionaries
+  - `dict3 = dict1 | dict2`
+    - returns any keys in dict2 not already present in dict1
+
+#### DefaultDict <!-- omit in toc -->
+
+- `defaultdict`: A dictionary that, when a key doesn't exist, returns an object instead of a `KeyError` exception
+  - Alternative is `dict.get(key, default_val)`
+- Instantiation: `defaultdict(fx)`
+  - Where `fx` is a function that returns the expected default value
+  - e.g. `defaultdict(list)`
+
+#### OrderedDict <!-- omit in toc -->
+
+- A stateful `dict` that preserves the order in which the keys were inserted
+- `from collections import OrderedDict`
+- Methods
+  - `popitem(last=True)`
+    - Pops in LIFO order if `True`, else FIFO
+  - `move_to_end(key, last=True)`
+    - Moves an existing key to either end of the dictionary
+
+### Heapq <!-- omit in toc -->
+
+```python
+import heapq
+
+heapq.heapify(arr) # O(N)
+heapq.heappush(arr, val) # O(logN)
+heapq.heappop(arr) # O(logN)
+heapq.heappushpop(arr, val) # heappush() + heappop() in a single method
+heapq.heapreplace(arr, val) # heapop() + heappush() in a single method
+
+# function that returns a list of n values from iterable according to the comparison criteria defined in key
+heapq.nlargest(K, arr, key=None) # O(N*logK)
+heapq.nsmallest(K, arr, key=None) # same as the above, just for minimums
+
+# for a max heap, negate the val
+# note: this library modifies an array in-place
+```
+
+### Counter <!-- omit in toc -->
+
+A module that receives an iterable as input and returns a (wrapped) dictionary of keys mapped to the amount of occurrences of that specific key within the iterable. The `Counter` object can be accessed using the same methods and syntax as a typical dictionary.
+
+```python
+from collections import Counter
+
+arr = ['a' 'b', 'a', 'c', 'c', 'c']
+counter = Counter(arr)
+
+print(counter) # Counter({'a': 2, 'b': 1, 'c': 3})
+
+# separate counters can also be added/subtracted (with the exception that any negative sums will be ignored)
+counter2 = Count("ab")
+counter3 = counter + counter2 # counter - counter2
+
+print(counter3) # Counter({'a': 3, 'b': 2, 'c': 3})
+
+# standard intersections between dictionaries are still applicable but keys with negative values will not be factored into the set comparisons
+counter5 = counter | counter2
+
+# unlike standard dictionaries, counters can be unioned!
+counter6 = counter & counter2 # counts are summed (any key with a negative sum is excluded from the resulting dictionary)
+```
+
+#### Methods <!-- omit in toc -->
+
+```python
+counter.update("add me pls")
+counter.subtract("remove mi")
+counter.elements() # returns a list of all elements (multiplied by their respective counts) with a count > 0
+counter.most_common(val=None) # returns a descending val-sized list of tuples sorted according to their counts. If val not supplied, sorted list is returned in its entirety
+```
+
+### Decorators <!-- omit in toc -->
+
+- Wraps an existing function inside another function
+- Decorator receives original function as input, defines an inner function, invokes the original function somewhere within the inner function, and then returns the outer function to the caller
+
+- Use cases
+
+  1. Measuring function execution time
+  2. URL routing
+  3. Input sanitation
+
+- Examples
+  1. `@classmethod`: can only be called from the class-level
+  2. `@staticmethod`: can be called from both the class _or_ instance-level
+  3. `@synchronized(lock)`
+
+```python
+def decorator(func):
+  def inner():
+      print("Hello world!")
+      func()
+  return inner
+
+
+@decorator # equivalent to obj = decorator(fx)
+def fx():
+  print("Goodbye world!")
+```
+
+### Iterators & Generators <!-- omit in toc -->
+
+1. `Iterator`
+   - Any object with a class that has `__next__()` and `__iter__()`
+     - `__iter(self)__` returns `self`
+     - `__next()__` is the custom implementation that describes how the class retrieves the next object
+   - Wieldy to implement because it requires maintaining state (current iteration)
+   - Calling `next(x)` on an `Iterable` produces the next sequential item of `x`
+2. `Generator`
+   - Every `generator` is an `iterator`, but not every `iterator` is a `generator`
+   - Built by constructing a function that implements `yield`
+     - This `generator` (lazily) lends us a sequence of values for python to iterate over
+     - Provides an easy, short-hand way to _create_ iterators, where the state is automatically maintained for us
+   - Implemented in a function, does not need a class
+
+### Sets <!-- omit in toc -->
+
+| method                           | description                                                         |
+| -------------------------------- | ------------------------------------------------------------------- |
+| `.remove()`                      | Throws `exception` if not found                                     |
+| `.discard()`                     | No `exception` thrown                                               |
+| `.union()` or `\|`               | Creates a new set that contains all elements from the provided sets |
+| `.intersection()` or `&`         | Returns all elements that are common between both                   |
+| `.difference()` or `-`           | Returns elements that are solely unique to the **first** set        |
+| `.symmetric_difference()` or `^` | Returns all elements that are unique to **both** sets               |
+
+### itertools <!-- omit in toc -->
+
+module with a collection of fast and memory-efficient tools for iterables
+
+| method                                      | description                                                                                                |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `.cycle(iterable)`                          | Cycles through an `iterable` endlessly                                                                     |
+| `.combinations(it, r=None)`                 | Accepts an iterable and integer (representing combination size), returns all combinations as an `iterable` |
+| `combinations_with_replacement(it, r=None)` | Same as the above with the exception that combinations can include repeated elements                       |
+| `.permutations(it, r=None)`                 | Returns list of permutations of length r                                                                   |
+
+#### Permutations vs. Combinations <!-- omit in toc -->
+
+- Order of elements does not matter for combinations
+- A set with `n` distinct elements has `n!` permutations
+
+### I/O <!-- omit in toc -->
+
+#### shutil <!-- omit in toc -->
+
+- `shutil.move(src, dest)`
+- `shutil.copy(src, dest)`
+- `shutil.copytree(src, dest)`
+
+#### Filesystem walking <!-- omit in toc -->
+
+```python
+for folder_name, subfolders, filenames in os.walk('/home/user'):
+  print('The current folder is {}'.format(folder_name))
+
+  for subfolder in subfolders:
+    print('SUBFOLDER OF {}: {}'.format(folder_name, subfolder))
+  for filename in filenames:
+    print('FILE INSIDE {}: {}'.format(folder_name, filename))
+```
+
+#### Reading & writing files <!-- omit in toc -->
+
+```python
+with open(file, rwx) as obj_file:
+  obj_file.read() # reads whole file
+  obj_file.readlines() # gets list of string values, by line
+
+  for line in obj_file: # iterates through each line, newline included
+```
+
+### args and kwargs <!-- omit in toc -->
+
+#### `*args` <!-- omit in toc -->
+
+- In a function declaration, it packs all remaining positional arguments into a tuple
+- In function _call_, it unpacks tuple or list into positional arguments
+- Use this to allow a function to accept a variable number of positional args
+- `tuple`
+
+```python
+def fruits(*args):
+    for fruit in args:
+      print(fruit)
+
+fruits("apples", "bananas", "grapes")
+```
+
+#### `**kwargs` <!-- omit in toc -->
+
+- In a function declaration, it is the same as the above with the condition that it unpacks keyword arguments
+- In a function call, it unpacks keyword arguments into a variable
+- `dict`
+
+```python
+def fruit(**kwargs):
+  for k, v in kwargs.items():
+    print("{0}: {1}".format(k, v)
+
+fruit(name="apple", color="red")
+```
+
+### Dataclasses <!-- omit in toc -->
+
+- Ideal for storing data
+- Requires data type declarations
+  - `from typing import Any` when datatype doesn't need to be explicitly declared
+
+```python
+@dataclass
+class Product:
+  name: str
+  count: int = 0
+  price: float = 0.0
+  customer: Any
+```
+
+### Miscellaneous <!-- omit in toc -->
+
+#### Comprehensions <!-- omit in toc -->
+
+- Nested list comprehensions follow the same flow as its loop equivalent:
+
+  ```python
+  [x for row in grid for x in row] # is equivalent to...
+
+  for row in grid:
+      for x in row:
+  ```
+
+- In dict comprehensions with a ternary operator, the `else` is only applicable to the **value**. The **key** is unaffected:
+
+  ```python
+  {k: v for k, v in collection if v % 2 == 0 else 1}
+  ```
+
+- List of empty lists:
+
+  ```python
+  [[] for i in range(x)]
+  ```
+
+- Matrix:
+
+  ```python
+  [[False for x in range(len(grid[0]))] for y in range(len(grid))]
+  ```
+
+#### Strings <!-- omit in toc -->
+
+- Sanitizing/extracting elements from string:
+
+  ```python
+  s = "".join(c for c in s if c not in x)
+  ```
+
+- Converting a string to list of chars: `list(string)`
+  - Conversely: `"".join(string)`
+- `import string`:
+
+<p align="center">
+  <img width=70% src="./assets/string_constants.png"/>
+</p>
+
+#### Arrays <!-- omit in toc -->
+
+- Check all elements meet a condition:
+
+  ```python
+  all(c == '' for c in x)
+  ```
+
+- Check that at least 1 element meets a condition:
+
+  ```python
+  any(x < 0 or y < 0 for (x, y) in z)
+  ```
+
+- Reverse list: `x[::-1]`
+
+  - In-place reversal: `x.reverse()`
+
+- Sort list: `sorted(x)`
+
+  - In-place: `x.sort()`
+  - Sorting with key:
+
+    ```python
+    sorted(x, key=lambda x: x[1], reverse=True)
+    ```
+
+  - `O(nlogn)` time complexity and `O(n)` space
+
+#### Misc <!-- omit in toc -->
+
+- Function calls
+
+  1. Pass by reference
+     1. The variable from the caller is passed directly into the function, implicitly allowing direct changes to the memory location.
+  2. Pass by value
+     1. `Java`
+     2. A new variable is created in the function and the contents of the supplied argument are _copied_ to this new object (new location in memory).
+  3. Pass by object reference
+     1. `python`
+     2. A new variable is yet again created, but instead of copying, the variable _points_ to the same memory location as the variable that was supplied in the argument. So, any changes to the new variable will be reflected outside of the function. Re-assignments, however, are scoped to the method and will not affect the original variable.
+
+- `x is y`: object comparison
+- `x == y`: value comparison
+- Swapping: `a, b = b, a`
+- Appending a list to another list stores a **reference** to the appended list
+  - i.e. Any updates to the list _after_ it has been appended will update the _appendee_ as well
+  - To resolve this issue, **append a new object** to the list
+    - `list1.append(list2[:])` or `list1.append(list(list2))`
+- Instance variables are declared in `__init__()`
+
+  - **Class** variables are declared outside the constructor
+
+    ```python
+    class Square:
+      length = 0 # class variable
+      height = 0
+
+      def __init__(self, color):
+        self.color = color # instance variable
+    ```
+
+- `@property` enables a method to be accessed as an attribute
+
+  - Useful for overriding setter behavior by `@{method_name}.setter`
+
+- Maximum/minimum number
+
+  - `float('inf')`
+  - `float('-inf')`
+
+- Caching results for recursive calls/dynamic programming
+
+  - `from functools import cache`
+  - Annotate any method that should be memoized with `@cache`
+
+- Memory management
+  - Managed entirely by the Python private heap space; all objects and data structures are located here. The interpreter handles this space intelligently and does not permit the engineer permissions to access it.
 
 ## Big-O
 
@@ -2002,448 +2502,6 @@ def climbStairs(self, n: int) -> int:
   return dp[n]
 ```
 
-## Languages
-
-### Python
-
-#### Dictionaries <!-- omit in toc -->
-
-##### Dict
-
-- `for key in dict` only iterates over keys
-  - Use `dict.items()` for both keys and values
-- Intersections between dictionaries
-  - `dict3 = dict1 | dict2`
-    - returns any keys in dict2 not already present in dict1
-
-##### DefaultDict
-
-- `defaultdict`: A dictionary that, when a key doesn't exist, returns an object instead of a `KeyError` exception
-  - Alternative is `dict.get(key, default_val)`
-- Instantiation: `defaultdict(fx)`
-  - Where `fx` is a function that returns the expected default value
-  - e.g. `defaultdict(list)`
-
-##### OrderedDict
-
-- A stateful `dict` that preserves the order in which the keys were inserted
-- `from collections import OrderedDict`
-- Methods
-  - `popitem(last=True)`
-    - Pops in LIFO order if `True`, else FIFO
-  - `move_to_end(key, last=True)`
-    - Moves an existing key to either end of the dictionary
-
-#### Heapq <!-- omit in toc -->
-
-```python
-import heapq
-
-heapq.heapify(arr) # O(N)
-heapq.heappush(arr, val) # O(logN)
-heapq.heappop(arr) # O(logN)
-heapq.heappushpop(arr, val) # heappush() + heappop() in a single method
-heapq.heapreplace(arr, val) # heapop() + heappush() in a single method
-
-# function that returns a list of n values from iterable according to the comparison criteria defined in key
-heapq.nlargest(K, arr, key=None) # O(N*logK)
-heapq.nsmallest(K, arr, key=None) # same as the above, just for minimums
-
-# for a max heap, negate the val
-# note: this library modifies an array in-place
-```
-
-#### Counter <!-- omit in toc -->
-
-A module that receives an iterable as input and returns a (wrapped) dictionary of keys mapped to the amount of occurrences of that specific key within the iterable. The `Counter` object can be accessed using the same methods and syntax as a typical dictionary.
-
-```python
-from collections import Counter
-
-arr = ['a' 'b', 'a', 'c', 'c', 'c']
-counter = Counter(arr)
-
-print(counter) # Counter({'a': 2, 'b': 1, 'c': 3})
-
-# separate counters can also be added/subtracted (with the exception that any negative sums will be ignored)
-counter2 = Count("ab")
-counter3 = counter + counter2 # counter - counter2
-
-print(counter3) # Counter({'a': 3, 'b': 2, 'c': 3})
-
-# standard intersections between dictionaries are still applicable but keys with negative values will not be factored into the set comparisons
-counter5 = counter | counter2
-
-# unlike standard dictionaries, counters can be unioned!
-counter6 = counter & counter2 # counts are summed (any key with a negative sum is excluded from the resulting dictionary)
-```
-
-##### Methods
-
-```python
-counter.update("add me pls")
-counter.subtract("remove mi")
-counter.elements() # returns a list of all elements (multiplied by their respective counts) with a count > 0
-counter.most_common(val=None) # returns a descending val-sized list of tuples sorted according to their counts. If val not supplied, sorted list is returned in its entirety
-```
-
-#### Decorators <!-- omit in toc -->
-
-- Wraps an existing function inside another function
-- Decorator receives original function as input, defines an inner function, invokes the original function somewhere within the inner function, and then returns the outer function to the caller
-
-- Use cases
-
-  1. Measuring function execution time
-  2. URL routing
-  3. Input sanitation
-
-- Examples
-  1. `@classmethod`: can only be called from the class-level
-  2. `@staticmethod`: can be called from both the class _or_ instance-level
-  3. `@synchronized(lock)`
-
-```python
-def decorator(func):
-  def inner():
-      print("Hello world!")
-      func()
-  return inner
-
-
-@decorator # equivalent to obj = decorator(fx)
-def fx():
-  print("Goodbye world!")
-```
-
-#### Iterators & Generators <!-- omit in toc -->
-
-1. `Iterator`
-   - Any object with a class that has `__next__()` and `__iter__()`
-     - `__iter(self)__` returns `self`
-     - `__next()__` is the custom implementation that describes how the class retrieves the next object
-   - Wieldy to implement because it requires maintaining state (current iteration)
-   - Calling `next(x)` on an `Iterable` produces the next sequential item of `x`
-2. `Generator`
-   - Every `generator` is an `iterator`, but not every `iterator` is a `generator`
-   - Built by constructing a function that implements `yield`
-     - This `generator` (lazily) lends us a sequence of values for python to iterate over
-     - Provides an easy, short-hand way to _create_ iterators, where the state is automatically maintained for us
-   - Implemented in a function, does not need a class
-
-#### Sets <!-- omit in toc -->
-
-| method                           | description                                                         |
-| -------------------------------- | ------------------------------------------------------------------- |
-| `.remove()`                      | Throws `exception` if not found                                     |
-| `.discard()`                     | No `exception` thrown                                               |
-| `.union()` or `\|`               | Creates a new set that contains all elements from the provided sets |
-| `.intersection()` or `&`         | Returns all elements that are common between both                   |
-| `.difference()` or `-`           | Returns elements that are solely unique to the **first** set        |
-| `.symmetric_difference()` or `^` | Returns all elements that are unique to **both** sets               |
-
-#### itertools <!-- omit in toc -->
-
-module with a collection of fast and memory-efficient tools for iterables
-
-| method                                      | description                                                                                                |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `.cycle(iterable)`                          | Cycles through an `iterable` endlessly                                                                     |
-| `.combinations(it, r=None)`                 | Accepts an iterable and integer (representing combination size), returns all combinations as an `iterable` |
-| `combinations_with_replacement(it, r=None)` | Same as the above with the exception that combinations can include repeated elements                       |
-| `.permutations(it, r=None)`                 | Returns list of permutations of length r                                                                   |
-
-##### Permutations vs. Combinations
-
-- Order of elements does not matter for combinations
-- A set with `n` distinct elements has `n!` permutations
-
-#### I/O <!-- omit in toc -->
-
-##### shutil
-
-- `shutil.move(src, dest)`
-- `shutil.copy(src, dest)`
-- `shutil.copytree(src, dest)`
-
-##### Filesystem walking
-
-```python
-for folder_name, subfolders, filenames in os.walk('/home/user'):
-  print('The current folder is {}'.format(folder_name))
-
-  for subfolder in subfolders:
-    print('SUBFOLDER OF {}: {}'.format(folder_name, subfolder))
-  for filename in filenames:
-    print('FILE INSIDE {}: {}'.format(folder_name, filename))
-```
-
-##### Reading & writing files
-
-```python
-with open(file, rwx) as obj_file:
-  obj_file.read() # reads whole file
-  obj_file.readlines() # gets list of string values, by line
-
-  for line in obj_file: # iterates through each line, newline included
-```
-
-#### args and kwargs <!-- omit in toc -->
-
-##### `*args`
-
-- In a function declaration, it packs all remaining positional arguments into a tuple
-- In function _call_, it unpacks tuple or list into positional arguments
-- Use this to allow a function to accept a variable number of positional args
-- `tuple`
-
-```python
-def fruits(*args):
-    for fruit in args:
-      print(fruit)
-
-fruits("apples", "bananas", "grapes")
-```
-
-##### `**kwargs`
-
-- In a function declaration, it is the same as the above with the condition that it unpacks keyword arguments
-- In a function call, it unpacks keyword arguments into a variable
-- `dict`
-
-```python
-def fruit(**kwargs):
-  for k, v in kwargs.items():
-    print("{0}: {1}".format(k, v)
-
-fruit(name="apple", color="red")
-```
-
-#### Dataclasses <!-- omit in toc -->
-
-- Ideal for storing data
-- Requires data type declarations
-  - `from typing import Any` when datatype doesn't need to be explicitly declared
-
-```python
-@dataclass
-class Product:
-  name: str
-  count: int = 0
-  price: float = 0.0
-  customer: Any
-```
-
-#### Miscellaneous <!-- omit in toc -->
-
-##### Comprehensions
-
-- Nested list comprehensions follow the same flow as its loop equivalent:
-
-  ```python
-  [x for row in grid for x in row] # is equivalent to...
-
-  for row in grid:
-      for x in row:
-  ```
-
-- In dict comprehensions with a ternary operator, the `else` is only applicable to the **value**. The **key** is unaffected:
-
-  ```python
-  {k: v for k, v in collection if v % 2 == 0 else 1}
-  ```
-
-- List of empty lists:
-
-  ```python
-  [[] for i in range(x)]
-  ```
-
-- Matrix:
-
-  ```python
-  [[False for x in range(len(grid[0]))] for y in range(len(grid))]
-  ```
-
-##### Strings
-
-- Sanitizing/extracting elements from string:
-
-  ```python
-  s = "".join(c for c in s if c not in x)
-  ```
-
-- Converting a string to list of chars: `list(string)`
-  - Conversely: `"".join(string)`
-- `import string`:
-
-<p align="center">
-  <img width=70% src="./assets/string_constants.png"/>
-</p>
-
-##### Arrays
-
-- Check all elements meet a condition:
-
-  ```python
-  all(c == '' for c in x)
-  ```
-
-- Check that at least 1 element meets a condition:
-
-  ```python
-  any(x < 0 or y < 0 for (x, y) in z)
-  ```
-
-- Reverse list: `x[::-1]`
-
-  - In-place reversal: `x.reverse()`
-
-- Sort list: `sorted(x)`
-
-  - In-place: `x.sort()`
-  - Sorting with key:
-
-    ```python
-    sorted(x, key=lambda x: x[1], reverse=True)
-    ```
-
-  - `O(nlogn)` time complexity and `O(n)` space
-
-##### Misc
-
-- Function calls
-
-  1. Pass by reference
-     1. The variable from the caller is passed directly into the function, implicitly allowing direct changes to the memory location.
-  2. Pass by value
-     1. `Java`
-     2. A new variable is created in the function and the contents of the supplied argument are _copied_ to this new object (new location in memory).
-  3. Pass by object reference
-     1. `python`
-     2. A new variable is yet again created, but instead of copying, the variable _points_ to the same memory location as the variable that was supplied in the argument. So, any changes to the new variable will be reflected outside of the function. Re-assignments, however, are scoped to the method and will not affect the original variable.
-
-- `x is y`: object comparison
-- `x == y`: value comparison
-- Swapping: `a, b = b, a`
-- Appending a list to another list stores a **reference** to the appended list
-  - i.e. Any updates to the list _after_ it has been appended will update the _appendee_ as well
-  - To resolve this issue, **append a new object** to the list
-    - `list1.append(list2[:])` or `list1.append(list(list2))`
-- Instance variables are declared in `__init__()`
-
-  - **Class** variables are declared outside the constructor
-
-    ```python
-    class Square:
-      length = 0 # class variable
-      height = 0
-
-      def __init__(self, color):
-        self.color = color # instance variable
-    ```
-
-- `@property` enables a method to be accessed as an attribute
-
-  - Useful for overriding setter behavior by `@{method_name}.setter`
-
-- Maximum/minimum number
-
-  - `float('inf')`
-  - `float('-inf')`
-
-- Caching results for recursive calls/dynamic programming
-
-  - `from functools import cache`
-  - Annotate any method that should be memoized with `@cache`
-
-- Memory management
-  - Managed entirely by the Python private heap space; all objects and data structures are located here. The interpreter handles this space intelligently and does not permit the engineer permissions to access it.
-
-### SQL
-
-#### ACID vs. BASE <!-- omit in toc -->
-
-- ACID
-
-  - Atomicity
-    - Transactions are either performed in whole or they are not. There is no concept of a partially-completed transaction
-  - Consistency
-    - Ensures that a transaction only make changes in pre-defined, predictable ways. It will not corrupt the database in any way
-  - Isolation
-    - Transactions are performed with no other concurrent processes being performed on the data. No race conditions will arise
-  - Durability
-    - Guarantees that, once written, the data is persisted and will stay persisted, even in the event of a system failure
-  - Strong focus on consistency and availability
-
-- BASE
-  - Basically available
-    - Does not enforce immediate consistency, but rather guarantees availability of data (in terms of CAP theorem)
-  - Soft state
-    - The state of a system may change over time due to eventual consistency
-  - Eventually consistent
-    - **Eventual consistency**: a system becomes consistent over time
-  - Strong focus on availability and partition tolerance
-
-#### Order of Operations <!-- omit in toc -->
-
-1. `FROM`
-2. `WHERE`
-3. `GROUP BY`
-4. `HAVING`
-   - requires an aggregation function
-     - i.e. `HAVING sum(population) > 200,000`
-5. `SELECT`
-6. `ORDER BY` (can use a `SELECT` alias)
-7. `LIMIT`
-
-#### Indexing <!-- omit in toc -->
-
-- Used to improve query response time by facilitating faster searching
-- Implemented with a sorted list of (narrowly-scoped) data that can be used to look something up
-  - i.e. Table of contents
-- Decreases write performance because for every write to a table, the index has to be written as well
-
-#### NoSQL <!-- omit in toc -->
-
-- Key-Value stores
-
-  - Data is stored in array of KV pairs
-  - Redis, Voldemort, Dynamo
-
-- Doc Databases
-
-  - Data is stored in documents (instead of rows and columns) and grouped together in collections
-  - Each document can have an entirely different structure
-  - CouchDB, MongoDB
-
-- Wide-Column Databases
-
-  - Instead of tables, column families are used as containers for rows
-  - All of the columns do not need to be known up front
-    - Each row doesn't have to have same number of columns
-  - Best suited for large datasets
-  - Cassandra, HBase
-
-- Graph Databases
-  - Store data whose relations are best represented in a graph
-  - Contains nodes (entities), properties (entity metadata), and lines (connections between entities)
-  - Neo4J, InfiniteGraph
-
-##### NoSQL vs. SQL <!-- omit in toc -->
-
-- NoSQL is better at horizontal scaling because the objects exist as a self-contained file
-  with no relations to any other object
-  - Therefore, no joins to other objects (that exist on other servers) are required
-
-|             | SQL                                                | NoSQL                |
-| ----------- | -------------------------------------------------- | -------------------- |
-| Storage     | Tables (rows are entities, columns are datapoints) | Objects              |
-| Schemas     | Fixed, pre-defined                                 | Dynamic, non-uniform |
-| Querying    | SQL                                                | UnQL                 |
-| Scalability | Vertically                                         | Horizontally         |
-| Reliability | Consistent, available                              | Performant, scalable |
-
 ## OSI Model
 
 The Open Systems Interconnection (OSI) model describes seven layers that computer systems use to communicate over a network. OSI is a generic, protocol-independent model that is intended to describe _all forms_ of network communication. This is in contrast to TCP/IP which is a functional model designed to solve specific communication problems using discrete, standard protocols.
@@ -2507,27 +2565,6 @@ This layer is utilized by end-user software such as web browsers and email clien
 <p align="center">
   <img width=50% src="./assets/app.svg"/>
 </p>
-
-## Powers of 10
-
-| Power           | Number                 | Bytes |
-| --------------- | ---------------------- | ----- |
-| 10<sup>3</sup>  | 1,000                  | 1 KB  |
-| 10<sup>6</sup>  | 1,000,000              | 1 MB  |
-| 10<sup>9</sup>  | 1,000,000,000          | 1 GB  |
-| 10<sup>12</sup> | 1,0000,000,000,000     | 1 TB  |
-| 10<sup>15</sup> | 1,0000,000,000,000,000 | 1 PB  |
-
-## Powers of 2
-
-| Power          | Number            | Bytes   |
-| -------------- | ----------------- | ------- |
-| 2<sup>8</sup>  | 256               | < 1 KiB |
-| 2<sup>10</sup> | 1024              | 1 KiB   |
-| 2<sup>20</sup> | 1,048,576         | 1 MiB   |
-| 2<sup>30</sup> | 1,073,741,824     | 1 GiB   |
-| 2<sup>32</sup> | 4,294,967,296     | 4 GiB   |
-| 2<sup>40</sup> | 1,099,511,627,776 | 1 TiB   |
 
 ## Miscellaneous
 
@@ -2647,6 +2684,29 @@ Note: Python only supports `signed` types. Additonally, primitive sizes vary dep
 10. Estimate the time and space complexity
     1. Explain any potential trade-offs that could be made
 
+## Quick References
+
+### Powers of 10
+
+| Power           | Number                 | Bytes |
+| --------------- | ---------------------- | ----- |
+| 10<sup>3</sup>  | 1,000                  | 1 KB  |
+| 10<sup>6</sup>  | 1,000,000              | 1 MB  |
+| 10<sup>9</sup>  | 1,000,000,000          | 1 GB  |
+| 10<sup>12</sup> | 1,0000,000,000,000     | 1 TB  |
+| 10<sup>15</sup> | 1,0000,000,000,000,000 | 1 PB  |
+
+### Powers of 2
+
+| Power          | Number            | Bytes   |
+| -------------- | ----------------- | ------- |
+| 2<sup>8</sup>  | 256               | < 1 KiB |
+| 2<sup>10</sup> | 1024              | 1 KiB   |
+| 2<sup>20</sup> | 1,048,576         | 1 MiB   |
+| 2<sup>30</sup> | 1,073,741,824     | 1 GiB   |
+| 2<sup>32</sup> | 4,294,967,296     | 4 GiB   |
+| 2<sup>40</sup> | 1,099,511,627,776 | 1 TiB   |
+
 ## Resources
 
 ### Text <!-- omit in toc -->
@@ -2666,3 +2726,5 @@ Note: Python only supports `signed` types. Additonally, primitive sizes vary dep
 - [NeetCode](https://www.youtube.com/c/NeetCode/videos)
 - [Exponent](https://www.youtube.com/c/ExponentTV/videos)
 - [CS Dojo](https://www.youtube.com/c/CSDojo)
+- [Gaurav Sensei](https://www.youtube.com/c/GauravSensei)
+- [Hussein Nasser](https://www.youtube.com/c/HusseinNasser-software-engineering)
