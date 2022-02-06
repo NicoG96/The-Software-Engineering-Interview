@@ -43,16 +43,15 @@
    4. [CAP Theorem](#cap-theorem)
    5. [Consistent Hashing](#consistent-hashing)
    6. [Load Balancing](#load-balancing)
+      1. [Redundancy](#redundancy)
    7. [Reverse Proxies](#reverse-proxies)
    8. [Databases](#databases)
       1. [Partitioning](#partitioning)
       2. [RDBMS](#rdbms)
-      3. [NoSQL](#nosql)
-   9. [Asynchronism](#asynchronism)
-      1. [Message queues](#message-queues)
-      2. [Task queues](#task-queues)
-   10. [Distributed Systems](#distributed-systems)
-   11. [Miscellaneous](#miscellaneous)
+      3. [Replication](#replication)
+      4. [NoSQL](#nosql)
+   9. [Distributed Systems](#distributed-systems)
+   10. [Miscellaneous](#miscellaneous)
 4. [Python](#python)
 5. [Big-O](#big-o)
 6. [Bit Manipulation](#bit-manipulation)
@@ -1777,7 +1776,7 @@ In this schema, one load balancer is kept as the active node while a secondary n
 
 ##### Active-active
 
-As the name implies, this schema has 2 active load balancers. TODO
+As the name implies, this schema has 2 active load balancers sharing the load.
 
 #### Routing methods <!-- omit in toc -->
 
@@ -1863,11 +1862,27 @@ A server that sits in front of a back-end system and acts as the public-facing i
 #### Replication
 
 1. Leader-follower
-   1. TODO
+   1. One replica is designated as the leader and all others are followers.
+   2. All write requests are processed by the leader who then sends the writes to its followers as part of a replication log or change stream.
+   3. Each follower takes this log and updates its local copy of the databse accordingly, applying updates in the same order as the log. Reads can be handled by leaders or followers.
+   4. Cons
+      1. One node for all writes
+      2. Leader can be blocked from writes if implemented synchronously (waits for successful response from a failing follower node)
+         1. Easier to implement if one node is synchronous and the rest as asynchronous
+            1. Guarantees an up-to-date copy of data on at least 2 nodes
+      3. Complexity of new leader election / split-brain
+      4. Replication lag
 2. Leader-leader
-   1. 
-3. Federation
-   1. 
+   1. Same general process as above with the exception that there is more than one leader node. Suitable for data spread across multiple datacenters: each datacenter can have its own leader.
+   2. Improves latency in comparison to single leader as there could be a write node closer to the client
+   3. Tolerant of datacenter outages
+   4. Cons
+      1. Data can be concurrenctly modified on two different leaders
+      2. Often considered dangerous
+3. Leaderless
+   1. All nodes function as leaders.
+   2. No concept of failover
+   3. Common to implement with quorums
 4. Denormalization
    1. The practice of adding datasets from a remote node onto a local node to reduce the costs of complex joins over a network
 
@@ -1964,15 +1979,6 @@ A server that sits in front of a back-end system and acts as the public-facing i
 | Querying    | SQL                                                | UnQL                 |
 | Scalability | Vertically                                         | Horizontally         |
 | Reliability | Consistent, available                              | Performant, scalable |
-
-### Asynchronism
-
-#### Message queues
-
-TODO
-
-#### Task queues
-
 
 ### Distributed Systems
 
