@@ -1208,24 +1208,23 @@ Complexity
 - `O(V)` space complexity
 
 ```python
-class Solution(object):
-    def network_delay_time(self, times, N, K):
-        graph = collections.defaultdict(list)
-        for u, v, w in times:
-            graph[u].append((v, w))
+class Solution:
+    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:
+        graph, dist, pq = defaultdict(list), {}, [(0, k)]
 
-        pq = [(0, K)]
-        dist = {node: float('inf') for node in range(1, N+1)}
-
+        for src, dest, cost in times:
+            graph[src].append((dest, cost))
+            
         while pq:
-            weight, node = heapq.heappop(pq)
-            dist[node] = weight
+            time, node = heapq.heappop(pq)
+            
+            if node not in dist:
+                dist[node] = time
 
-            for nei, nei_weight in graph[node]:
-                if nei_weight < dist[nei]:
-                    heapq.heappush(pq, (weight+nei_weight, nei))
+                for neighbor, w in graph[node]:
+                    heapq.heappush(pq, (w+time, neighbor))
 
-        return max(dist.values()) if len(dist) == N else -1
+        return max(dist.values()) if len(dist) == n else -1
 ```
 
 ###### Bellman-Ford's Algorithm
