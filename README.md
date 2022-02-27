@@ -1333,47 +1333,49 @@ def find_minimum(lst):
 
 ##### Algorithm
 
-1. Select pivot
-2. Iterate through array until we hit an element whose value is greater than that of the pivot and set a second pointer here
-3. Keep iterating until we find an element that is _smaller_ than the pivot and swap with the larger element from the previous step
-   1. `++` the second pointer and use this as the new potential swap candidate
-4. Finally, once we reach the end, swap the pivot with the second pointer
-5. Divide the arrays and repeat this process
+1. Select last element as pivot
+2. Create a swap pointer and assign it to the specified start index
+3. Iterate through the array from the start index, swapping with the swap pointer iff the current element is lesser than that of the pivot
+   1. Increment swap pointer by 1
+4. Elif current index is greater than the pivot, then do nothing
+5. Finally, once we reach the end of the loop, swap the pivot with the swap pointer
+6. Return the index of the swap pointer and repeat as necessary
 
 ```python
 # function to find the partition position
-def partition(array, low, high):
+class Solution:
+    def topKFrequent(self, nums: List[int], k: int) -> List[int]:
+        counter = Counter(nums)
+        uniques = list(counter.keys())
+        N = len(uniques)
+        
+            
+        def partition(start, end):
+            pivot = uniques[end]
+            swap_ptr = start
+            
+            for i in range(start, end):
+                if counter[uniques[i]] < counter[pivot]:
+                    uniques[swap_ptr], uniques[i] = uniques[i], uniques[swap_ptr]
+                    swap_ptr += 1
+            uniques[swap_ptr], uniques[end] = uniques[end], uniques[swap_ptr]
+            return swap_ptr
+                
+            
+        def quick_select(start, end):
+            if start == end: return
+            pivot_idx = partition(start, end)
+            
+            if N-k == pivot_idx: return
 
-  # choose the rightmost element as pivot
-  pivot = array[high]
-
-  # pointer for greater element
-  i = low - 1
-
-  for j in range(low, high):
-    if array[j] <= pivot:
-      # if element smaller than pivot is found
-      # swap it with the greater element pointed to from i
-      i = i + 1
-
-      (array[i], array[j]) = (array[j], array[i])
-
-  # swap the pivot element with the greater element specified by i
-  (array[i + 1], array[high]) = (array[high], array[i + 1])
-
-  # return the position from where partition is done
-  return i + 1
-
-def quick_sort(array, low, high):
-  if low < high:
-
-    pi = partition(array, low, high)
-    quickSort(array, low, pi - 1)
-    quickSort(array, pi + 1, high)
-
-
-data = [8, 7, 2, 1, 0, 9, 6]
-quickSort(data, 0, len(data) - 1)
+            if N-pivot_idx < k:
+                quick_select(start, pivot_idx-1)
+            else:
+                quick_select(pivot_idx+1, end)
+            
+            
+        quick_select(0, N-1)
+        return uniques[N-k:]
 ```
 
 #### Insertion Sort
