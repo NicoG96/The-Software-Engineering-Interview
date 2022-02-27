@@ -29,12 +29,12 @@
       16. [Graph Algorithms](#graph-algorithms)
       17. [Dynamic Programming](#dynamic-programming)
    2. [Sorting](#sorting)
-      1. [Mergesort](#mergesort)
-      2. [Quicksort](#quicksort)
-      3. [Insertion sort](#insertion-sort)
-      4. [Selection sort](#selection-sort)
-      5. [Bubble sort](#bubble-sort)
-      6. [Heap sort](#heap-sort)
+      1. [Merge Sort](#merge-sort)
+      2. [Quick Sort](#quick-sort)
+      3. [Insertion Sort](#insertion-sort)
+      4. [Selection Sort](#selection-sort)
+      5. [Bubble Sort](#bubble-sort)
+      6. [Heap Sort](#heap-sort)
       7. [Bucket Sort](#bucket-sort)
 3. [System Design](#system-design)
    1. [Template](#template)
@@ -1001,7 +1001,7 @@ A graph traversal in which each node `v` is visited only _after_ all of its depe
 - Must be a directed, acyclic graph
 - There must be _at least_ one vertex with an in-degree of `0`, i.e. an origin node
 
-###### Kahn's Algorithm
+###### Kahn's Algorithm (BFS)
 
 ```python
 def topological_sort(self, n, edges):
@@ -1277,7 +1277,7 @@ Refer [here](#dynamic-programming-1)
 
 ---
 
-#### Mergesort
+#### Merge Sort
 
 - A sorting algorithm that divides an array into multiple smaller subproblems. When each subproblem is solved, the results are combined to form a sorted array.
 - Divide and conquer
@@ -1326,7 +1326,7 @@ def find_minimum(lst):
   return lst[0]
 ```
 
-#### Quicksort
+#### Quick Sort
 
 - A divide-and-conquer sorting algorithm that divides an array into smaller subarrays by random selection of a pivot. Elements less than the pivot occupy the left side of it, while those greater go on the right. The constituent subarrays follow the same approach and all subproblems are combined to form a sorted array.
 - Not stable
@@ -1377,7 +1377,7 @@ data = [8, 7, 2, 1, 0, 9, 6]
 quickSort(data, 0, len(data) - 1)
 ```
 
-#### Insertion sort
+#### Insertion Sort
 
 - Algorithm that places an unsorted element at its suitable place in each iteration
 - Stable
@@ -1402,7 +1402,7 @@ def insertion_sort(array):
     array[left + 1] = key
 ```
 
-#### Selection sort
+#### Selection Sort
 
 - Algorithm that selects the smallest element from the "unsorted" portion of an array and then places that element at the beginning of the sorted portion
 - Not stable
@@ -1425,7 +1425,7 @@ def selection_sort(array, size):
     array[i], array[min_idx] = array[min_idx], array[i]
 ```
 
-#### Bubble sort
+#### Bubble Sort
 
 - Algorithm that compares two adjacent elements and swaps them to be in the intended order.
 - Stable
@@ -1446,7 +1446,7 @@ def bubble_sort(array):
       array[i], array[i+1] = array[i+1], array[i]
 ```
 
-#### Heap sort
+#### Heap Sort
 
 - Efficient algorithm that leverages arrays and trees
 - Recall that all leaves are proper heaps by default (they have no children and thus they are the min/max element of their tree)
@@ -1621,6 +1621,8 @@ def bucketSort(array):
          2. Document
          3. Wide-column
          4. Graph
+      3. Replication
+      4. Partitioning
    6. [Caching](#caching)
       1. Write-through
       2. Write-behind
