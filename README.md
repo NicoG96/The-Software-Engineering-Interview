@@ -1333,11 +1333,12 @@ def find_minimum(lst):
 
 ##### Algorithm
 
-1. Select last element as pivot
-2. Create a swap pointer and assign it to the specified start index
-3. Iterate through the array from the start index, swapping with the swap pointer iff the current element is lesser than that of the pivot
+1. Select random element as pivot
+2. Swap pivot with the last index
+3. Create a swap pointer and assign it to the specified start index
+4. Iterate through the array from the start index, swapping with the swap pointer iff the current element is lesser than that of the pivot
    1. Increment swap pointer by 1
-4. Elif current index is greater than the pivot, then do nothing
+5. Elif current index is greater than the pivot, then do nothing
 5. Finally, once we reach the end of the loop, swap the pivot with the swap pointer
 6. Return the index of the swap pointer and repeat as necessary
 
@@ -1351,8 +1352,10 @@ class Solution:
         
             
         def partition(start, end):
-            pivot = uniques[end]
+            pivot_idx = random.randint(start, end)
+            pivot = uniques[pivot_idx]
             swap_ptr = start
+            uniques[pivot_idx], uniques[end] = uniques[end], uniques[pivot_idx]
             
             for i in range(start, end):
                 if counter[uniques[i]] < counter[pivot]:
