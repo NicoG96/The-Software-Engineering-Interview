@@ -994,7 +994,7 @@ def all_paths_from_src_to_target(graph: List[List[int]]) -> List[List[int]]:
 
 ##### Topological Sorting
 
-A graph traversal in which each node `v` is visited only _after_ all of its dependencies are visited first. _Note_: multiple topological sortings can exist for any given graph.
+A graph traversal in which each node `v` is visited only _after_ all of its dependencies are visited first. _Note: multiple topological sortings can exist for any given graph._
 
 ###### Limitations
 
@@ -1007,7 +1007,6 @@ A graph traversal in which each node `v` is visited only _after_ all of its depe
 def topological_sort(self, n, edges):
   indegrees = [0 for x in range(n)]
   neighbors = defaultdict(list)
-  q = deque()
   ret = []
 
   for src, dest in edges:
@@ -1015,7 +1014,6 @@ def topological_sort(self, n, edges):
     indegrees[dest] += 1
 
   q = deque(node for node in range(n) if indegrees[node] == 0)
-
   while q:
     node = q.popleft()
 
@@ -1038,6 +1036,7 @@ class Solution:
   WHITE = 1
   GRAY  = 2
   BLACK = 3
+  has_cycle = False
 
   def dfs(self, node, visited, stack):
     visited[node] = Solution.GRAY
@@ -1046,20 +1045,20 @@ class Solution:
       if visited[neighbor] == Solution.WHITE:
         self.dfs(neighbor, visited, stack)
       elif visited[neighbor] == Solution.GRAY:
-        has_cycle = True
+        self.has_cycle = True
 
     visited[node] = Solution.BLACK
     stack.append(v)
 
   def topological_sort(self):
     visited = [Solution.WHITE] * self.V
-    stack = []
+    stack = deque()
 
     for node in range(self.V):
       if visited[node] == Solution.WHITE:
         self.dfs(node, visited, stack)
 
-    return stack if not has_cycle else []
+    return stack if not self.has_cycle else []
 ```
 
 ###### Complexity
@@ -1161,21 +1160,15 @@ Very similar to Kruskal's except rather than constructing an MST with **edges**,
 
 ```python
 def min_cost_connect_points(self, points: List[List[int]]) -> int:
-  sz = len(points)
-  visited = [False] * sz
-  pq = []
-  res = 0
-
-  v1 = points[0]
+  sz, visited = len(points), [False]*sz
+  pq, res, v1 = [], 0, points[0]
+  visited[0] = True
 
   for i in range(1, sz):
     v2 = points[i]
     cost = self.calcManhattan(v1, v2)
-    pq.append((cost, 0, i))
+    heapq.heappush(pq, (cost, 0, i))
 
-  heapq.heapify(pq)
-
-  visited[0] = True
   while pq:
     cost, pt1, pt2 = heapq.heappop(pq)
 
@@ -1274,14 +1267,16 @@ Refer [here](#dynamic-programming-1)
 
 **Stability**: A sorting algorithm is considered stable if the two or more items with the same value maintain the same relative positions even after sorting.
 
+For a graphical Big-O analysis of these algorithms, refer the [Big-O](#big-o) section.
+
 ---
 
 #### Merge Sort
 
-- A sorting algorithm that divides an array into multiple smaller subproblems. When each subproblem is solved, the results are combined to form a sorted array.
-- Divide and conquer
+- A divide-and-conquer sorting algorithm that divides an array into multiple smaller subproblems. When each subproblem is solved, the results are combined to form a sorted array.
 - Stable
-- `O(N⋅logN)`
+- `O(N⋅logN)` time complexity
+- `O(N)` space complexity
 
 <p align="center">
   <img width=50% src="./assets/merge_sort.png"/>
@@ -1329,21 +1324,21 @@ def find_minimum(lst):
 
 - A divide-and-conquer sorting algorithm that divides an array into smaller subarrays by random selection of a pivot. Elements less than the pivot occupy the left side of it, while those greater go on the right. The constituent subarrays follow the same approach and all subproblems are combined to form a sorted array.
 - Not stable
-- `O(n^2)`
+- `O(N^2)` time complexity in the worst case, `O(N)` on average
+- `O(logN)` space complexity
 
 ##### Algorithm
 
 1. Select random element as pivot
 2. Swap pivot with the last index
-3. Create a swap pointer and assign it to the specified start index
-4. Iterate through the array from the start index, swapping with the swap pointer iff the current element is lesser than that of the pivot
+3. Create a dedicated swap pointer, assign it to the specified start index
+4. Iterate through the array from the start index, swapping values with the swap pointer iff the current element is lesser than that of the pivot
    1. Increment swap pointer by 1
-5. Elif current index is greater than the pivot, then do nothing
+   2. elif the current index is greater than that of the pivot, then do nothing
 5. Finally, once we reach the end of the loop, swap the pivot with the swap pointer
 6. Return the index of the swap pointer and repeat as necessary
 
 ```python
-# function to find the partition position
 class Solution:
     def topKFrequent(self, nums: List[int], k: int) -> List[int]:
         counter = Counter(nums)
@@ -1552,26 +1547,20 @@ A stable sorting algoritm is then applied to each bucket. Once complete, the ele
 
 ```python
 def bucketSort(array):
-  bucket = []
+  N = len(array)
+  buckets = [[]] * N
 
-  # Create empty buckets
-  for i in range(len(array)):
-    bucket.append([])
+  for e in array:
+    bucket = e % N
+    buckets[bucket].append(e)
 
-  # Insert elements into their respective buckets
-  for j in array:
-    index_b = int(10 * j)
-    bucket[index_b].append(j)
+  for bucket in buckets:
+    bucket.sort()
 
-  # Sort the elements of each bucket
-  for i in range(len(array)):
-    bucket[i] = sorted(bucket[i])
-
-  # Get the sorted elements
   k = 0
-  for i in range(len(array)):
-    for j in range(len(bucket[i])):
-      array[k] = bucket[i][j]
+  for bucket in buckets:
+    for e in bucket:
+      array[k] = e
       k += 1
   return array
 ```
@@ -1588,6 +1577,7 @@ def bucketSort(array):
 2. Estimations and constraints
    1. Throughput/traffic estimates
       1. How many queries per second?
+         1. 86400 seconds in a day
       2. Read-to-write ratio
    2. Storage estimates
       1. Total storage required over 5 years
@@ -1601,7 +1591,7 @@ def bucketSort(array):
    1. Define the API: the resources, parameters, functions, & responses
    2. Define the database schema: the fields and estimated bytes per record
 4. High-level design
-   1. Sketch a basic algorithm that includes the main components and the connections between them
+   1. Sketch a basic system that includes the main components and the connections between them
 5. Scaling
    1. Iterate through each component and scale individually
       1. For the application layer, break down into microservices
@@ -1613,20 +1603,20 @@ def bucketSort(array):
       2. Active-active
       3. Layer 4
       4. Layer 7
-   5. [Database](#databases)
+   5. [Databases](#databases)
       1. [RDBMS](#sql)
+      2. [NoSQL](#nosql)
+         1. Key-value (DynamoDB)
+         2. Document (MongoDB)
+         3. Column (Cassandra)
+         4. Graph (Neo4j)
+      3. [Partitioning](#partitioning)
+         1. Vertical
+         2. Horizontal (sharding)
+      4. [Replication](#replication)
          1. Master-slave
          2. Master-master
-         3. Federation
-         4. Sharding/partitioning
-         5. Denormalization
-      2. [NoSQL](#nosql)
-         1. Key-value
-         2. Document
-         3. Wide-column
-         4. Graph
-      3. Replication
-      4. Partitioning
+         3. Leaderless
    6. [Caching](#caching)
       1. Write-through
       2. Write-behind
@@ -1658,8 +1648,7 @@ These types of CDNs are optimal for sites with heavy traffic as they inherently 
 
 #### Invalidation <!-- omit in toc -->
 
-- A process in a computer system whereby entries in a cache are replaced or removed
-- If data is modified on the DB, its cached version should be invalidated. A problem of **consistency**.
+A process in a computer systems whereby entries in a cache are replaced or removed. If data is modified on the database, its cached version should be invalidated.
 
   1. **Write-through cache**
      - Data is written into the cache and DB synchronously
@@ -1671,8 +1660,9 @@ These types of CDNs are optimal for sites with heavy traffic as they inherently 
   2. **Write-around cache**
      - Data is written directly to storage, bypassing cache entirely
      - Pro: Reduces the risk of the cache being flooded with writes that ultimately won't be read (80-20 rule)
-     - Con: Read requests for recently-written data are likely to result in a cache miss
-       - Thus, the request must be forwarded to the back-end, increasing latency
+     - Disadvantages
+       - Read requests for recently-written data are likely to result in a cache miss. Latency would increase in this case
+       - A request for recently-written data may actually be in the cache but could be inconsistent with the database. Depending on requirements, this could be acceptable but otherwise a mechanism to invalidate stale caches would need to be devised
 
   3. **Write-back cache**
      - Written only to the cache
@@ -1686,14 +1676,6 @@ These types of CDNs are optimal for sites with heavy traffic as they inherently 
      - Reduces latency when an entry expires and a fresh, synchronous request needs to be sent to the data store
      - If entry expired, synchronous request is made
      - If close to expiring, async request is made
-
-- Eviction policies
-  1. FIFO: first in, first out
-  2. LIFO: last in, first out
-  3. LRU: least recently used
-  4. MRU: most recently used
-  5. LFU: least frequently used
-  6. RR: random replacement
 
 ### CAP Theorem
 
@@ -1772,7 +1754,7 @@ server = servers[vnodes[hash(key) % vnodes.length]]
 
 Load balancers improve the responsiveness and availability of applications, websites, databases, etc by distributing the load across a host of servers.
 
-#### Redundancy
+#### Fail-over mechanisms
 
 Load balancers introduce a single point of failure and need to be engineered correctly to continue handling requests in the event of a failure.
 
@@ -1848,7 +1830,7 @@ A server that sits in front of a back-end system and acts as the public-facing i
      - Contains the mapping between PKs and servers
    - Flexible as we can add servers to DB pool or change partition scheme without application impact
 
-#### Criteria <!-- omit in toc -->
+##### Criteria <!-- omit in toc -->
 
 - **Key or hash-based partitioning**
   - Applies hash `f(x)` to a key attribute `x` of an entity to yield a unique hash number that can then be used for partitioning
@@ -1862,8 +1844,6 @@ A server that sits in front of a back-end system and acts as the public-facing i
 - **Composite**
   - Any of the above in combination
     - e.g. A list-based partitioning scheme than then follows a hash-based partition
-
-#### RDBMS
 
 #### Replication
 
@@ -1892,14 +1872,14 @@ A server that sits in front of a back-end system and acts as the public-facing i
 4. Denormalization
    1. The practice of adding datasets from a remote node onto a local node to reduce the costs of complex joins over a network
 
-##### Indexing <!-- omit in toc -->
+#### Indexing <!-- omit in toc -->
 
 - Used to improve query response time by facilitating faster searching
 - Implemented with a sorted list of (narrowly-scoped) data that can be used to look something up
   - i.e. Table of contents
 - Decreases write performance because for every write to a table, the index has to be written as well
 
-##### Order of Operations <!-- omit in toc -->
+#### Order of Operations <!-- omit in toc -->
 
 1. `FROM`
 2. `WHERE`
@@ -2192,12 +2172,6 @@ module with a collection of fast and memory-efficient tools for iterables
 - A set with `n` distinct elements has `n!` permutations
 
 ### I/O <!-- omit in toc -->
-
-#### shutil <!-- omit in toc -->
-
-- `shutil.move(src, dest)`
-- `shutil.copy(src, dest)`
-- `shutil.copytree(src, dest)`
 
 #### Filesystem walking <!-- omit in toc -->
 
@@ -2661,9 +2635,7 @@ Note: Python only supports `signed` types. Additonally, primitive sizes vary dep
 
 ## Coding Assessment
 
-1. Do not start coding until requirements are fully understood and algorithm is clear
-2. Repeat back the question
-3. Clarify the requirements
+1. Gather requirements
    1. Format of input?
    2. Size of input?
    3. Range of values?
@@ -2673,27 +2645,27 @@ Note: Python only supports `signed` types. Additonally, primitive sizes vary dep
    7. Edge cases?
    8. Should the original input be preserved?
    9. Can we assume English alphabet?
-4. Devise a small example to ensure the question is understood
-5. Explain high-level approach
+2. Devise a small example to ensure the question is understood
+3. Explain high-level approach
    1. Elaborate on a brute force algo first, then consider optimizations
       1. Explain estimated time and space complexity
-   2. If solution not clear, consider multiple and verbalize why each would or wouldn't work
-6. Once an approach has been agreed upon, _then_ start coding
-   1. Can start with pseudo-code
+   2. If solution not clear, consider multiple and verbalize why each would (or wouldn't) work
+4. Once an approach has been determined, _then_ start coding
+   1. Draft skeleton using pseudocode
    2. If stuck, explain why what you initially thought would work is no longer true
       1. Devise test cases, see if a pattern emerges
       2. Think about tangentially related problems and how they were solved before
       3. Iterate through different data structures and see if they can be leveraged for the problem at hand
       4. Can repeated work be cached?
          1. Trading off memory for speed
-7. Talk about what you're currently coding and its intended purpose
+5. Talk about what you're currently coding and its intended purpose
    1. Start with a simplified example and solve for base cases
-8. Review code
+6. Review code
    1. Refactor where possible
-9. Come up with test cases
+7. Come up with test cases
    1. Ensure the edge cases are covered
    2. Step through with debugger
-10. Estimate the time and space complexity
+8. Estimate the time and space complexity
     1. Explain any potential trade-offs that could be made
 
 ## Quick References
@@ -2721,22 +2693,29 @@ Note: Python only supports `signed` types. Additonally, primitive sizes vary dep
 
 ## Resources
 
-### Text <!-- omit in toc -->
+### General <!-- omit in toc -->
 
-- [Blind 75](https://leetcode.com/discuss/general-discussion/460599/blind-75-leetcode-questions)
-- [LeetCode Patterns](https://seanprashad.com/leetcode-patterns/)
-- [Grokking the System Design Interview](/resources/grokking_the_system_design_interview.pdf)
-- [The System Design Primer](https://github.com/donnemartin/system-design-primer)
-- [14 Patterns](https://hackernoon.com/14-patterns-to-ace-any-coding-interview-question-c5bb3357f6ed)
 - [The Tech Interview Handbook](https://github.com/yangshun/tech-interview-handbook)
 - [10 Rules for Negotiating](https://haseebq.com/my-ten-rules-for-negotiating-a-job-offer/)
 - [SQL Cheatsheet](resources/sql_cheat_sheet.pdf)
+- [Design Patterns](https://springframework.guru/gang-of-four-design-patterns/)
 
-### Videos <!-- omit in toc -->
+### Coding <!-- omit in toc -->
 
-- [InfoQ](https://www.youtube.com/nctv/videos?view=0&sort=p&flow=grid)
+- [Blind 75](https://leetcode.com/discuss/general-discussion/460599/blind-75-leetcode-questions)
+- [LeetCode Patterns](https://seanprashad.com/leetcode-patterns/)
+- [14 Patterns](https://hackernoon.com/14-patterns-to-ace-any-coding-interview-question-c5bb3357f6ed)
 - [NeetCode](https://www.youtube.com/c/NeetCode/videos)
+
+### System Design <!-- omit in toc -->
+
+- [Designing Data Intensive Applications](https://dataintensive.net/)
+- [Grokking the System Design Interview](https://www.educative.io/courses/grokking-the-system-design-interview)
+- [The System Design Primer](https://github.com/donnemartin/system-design-primer)
+- [System Design Interview](/resources/system_design_interview.pdf)
 - [Exponent](https://www.youtube.com/c/ExponentTV/videos)
 - [CS Dojo](https://www.youtube.com/c/CSDojo)
 - [Gaurav Sensei](https://www.youtube.com/c/GauravSensei)
 - [Hussein Nasser](https://www.youtube.com/c/HusseinNasser-software-engineering)
+- [InfoQ](https://www.youtube.com/nctv/videos?view=0&sort=p&flow=grid)
+- [High Scalability](http://highscalability.com/)
