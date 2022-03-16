@@ -52,16 +52,14 @@
       4. [NoSQL](#nosql)
    9. [Distributed Systems](#distributed-systems)
    10. [Miscellaneous](#miscellaneous)
-4. [Python](#python)
-5. [Big-O](#big-o)
-6. [Bit Manipulation](#bit-manipulation)
-7. [Dynamic Programming](#dynamic-programming-1)
-8. [OSI Model](#osi-model)
-9. [Miscellaneous](#miscellaneous-1)
-10. [Coding Assessment](#coding-assessment)
-11. [Quick References](#quick-references)
-   1. [Powers of 10](#powers-of-10)
-   2. [Powers of 2](#powers-of-2)
+4. [Coding Assessment](#coding-assessment)
+5. [Python](#python)
+6. [Big-O](#big-o)
+7. [Bit Manipulation](#bit-manipulation)
+8. [Dynamic Programming](#dynamic-programming-1)
+9. [OSI Model](#osi-model)
+10. [Misc. Programming Concepts](#miscellaneous-programming-concepts)
+11. [Powers of 10](#powers)
 12. [Resources](#resources)
 
 ## Data Structures
@@ -1961,6 +1959,41 @@ A server that sits in front of a back-end system and acts as the public-facing i
 - Typically used to filter, log, encrypt, decrypt, &/or transform requests
 - An ideal location to implement caching
 
+## Coding Assessment
+
+1. Gather requirements
+   1. Format of input?
+   2. Size of input?
+   3. Range of values?
+   4. What _kind_ of values? Negatives? Floating points?
+   5. Can we assume the input is well-formed and non-null?
+   6. Duplicates?
+   7. Edge cases?
+   8. Should the original input be preserved?
+   9. Can we assume English alphabet?
+2. Devise a small example to ensure the question is understood
+3. Explain high-level approach
+   1. Elaborate on a brute force algo first, then consider optimizations
+      1. Explain estimated time and space complexity
+   2. If solution not clear, consider multiple and verbalize why each would (or wouldn't) work
+4. Once an approach has been determined, _then_ start coding
+   1. Draft skeleton using pseudocode
+   2. If stuck, explain why what you initially thought would work is no longer true
+      1. Devise test cases, see if a pattern emerges
+      2. Think about tangentially related problems and how they were solved before
+      3. Iterate through different data structures and see if they can be leveraged for the problem at hand
+      4. Can repeated work be cached?
+         1. Trading off memory for speed
+5. Talk about what you're currently coding and its intended purpose
+   1. Start with a simplified example and solve for base cases
+6. Review code
+   1. Refactor where possible
+7. Come up with test cases
+   1. Ensure the edge cases are covered
+   2. Step through with debugger
+8. Estimate the time and space complexity
+    1. Explain any potential trade-offs that could be made
+
 ## Python
 
 ### Dictionaries <!-- omit in toc -->
@@ -2577,44 +2610,9 @@ Note: Java only supports `signed` types (with the sole exception of `char`)
 
 Note: Python only supports `signed` types. Additonally, primitive sizes vary depending on machine architecture
 
-## Coding Assessment
+## Powers
 
-1. Gather requirements
-   1. Format of input?
-   2. Size of input?
-   3. Range of values?
-   4. What _kind_ of values? Negatives? Floating points?
-   5. Can we assume the input is well-formed and non-null?
-   6. Duplicates?
-   7. Edge cases?
-   8. Should the original input be preserved?
-   9. Can we assume English alphabet?
-2. Devise a small example to ensure the question is understood
-3. Explain high-level approach
-   1. Elaborate on a brute force algo first, then consider optimizations
-      1. Explain estimated time and space complexity
-   2. If solution not clear, consider multiple and verbalize why each would (or wouldn't) work
-4. Once an approach has been determined, _then_ start coding
-   1. Draft skeleton using pseudocode
-   2. If stuck, explain why what you initially thought would work is no longer true
-      1. Devise test cases, see if a pattern emerges
-      2. Think about tangentially related problems and how they were solved before
-      3. Iterate through different data structures and see if they can be leveraged for the problem at hand
-      4. Can repeated work be cached?
-         1. Trading off memory for speed
-5. Talk about what you're currently coding and its intended purpose
-   1. Start with a simplified example and solve for base cases
-6. Review code
-   1. Refactor where possible
-7. Come up with test cases
-   1. Ensure the edge cases are covered
-   2. Step through with debugger
-8. Estimate the time and space complexity
-    1. Explain any potential trade-offs that could be made
-
-## Quick References
-
-### Powers of 10
+### Powers of 10 <!-- omit in toc -->
 
 | Power           | Number                 | Bytes |
 | --------------- | ---------------------- | ----- |
@@ -2624,7 +2622,7 @@ Note: Python only supports `signed` types. Additonally, primitive sizes vary dep
 | 10<sup>12</sup> | 1,0000,000,000,000     | 1 TB  |
 | 10<sup>15</sup> | 1,0000,000,000,000,000 | 1 PB  |
 
-### Powers of 2
+### Powers of 2 <!-- omit in toc -->
 
 | Power          | Number            | Bytes   |
 | -------------- | ----------------- | ------- |
