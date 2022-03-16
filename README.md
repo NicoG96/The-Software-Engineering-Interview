@@ -70,26 +70,26 @@
 
 #### Terminology <!-- omit in toc -->
 
-- **Weighted graph**: A graph which has values associated with its edges
-- **Vertex cut**: The set of vertices whose removal would make graph disconnected
+- **Weighted graph**: A graph that has values/weights associated with its edges
 - **Degree**: Denotes the number of edges connected to a certain node
-  - In a directed graph, this is further broken down into **indegree** and **outdegree**
+  - In a directed graph, this is further broken down into *indegree* and *outdegree*
 - **Hamiltonian path**: A path that visits each vertex exactly once
-- **Hamiltonian cycle/circuit**: A path that is a cycle
+- **Hamiltonian cycle/circuit**: A path that results in a cycle
 
 #### Types <!-- omit in toc -->
 
-1. **Directed graph (digraph)**: A graph whose edges have an explicit direction
-   - Implies that relations between vertices is not always symmetric
-2. **Directed acylic graph (DAG)**: A digraph with no directed cycles
+1. **Directed graph (digraph)**: A graph whose edges have an explicit direction. This implies that relations between vertices are not always symmetric. In cases where they _are_ symmetric (e.g. each directed edge has a counterpart edge in the opposite direction), the graph is considered bi-directional or parallel.
+
+2. **Directed acylic graph (DAG)**: A digraph that contains no cycles
    - Enables a [**topological sorting**](#topological-sorting) of vertices
      - Any DAG has a minimum of one topological ordering
    - Ideal for scheduled systems of events
-     - Vertices of graph may represent tasks to be performed & thus the edges would represent constraints that task `A` must be performed before task `B`
-3. **Connected graph**: A graph with no isolated vertices
-   - A **connected component** is one that is internally connected but _not_ connected to the vertices of the rest of supergraph
-   - In BFS/DFS, if the number of nodes visited is equal to the total number of vertices then the graph can be considered connected
-4. **Strongly-connected digraph**: A graph in which every pair of vertices has a directed _path_ both from `x` to `y` and `y` to `x`, weakly connected otherwise
+     - The vertices of a graph can represent tasks to be performed
+     - The edges between vertices can represent constraints that must be completed after a task `A` but prior to a task `B`, for example
+3. **Connected graph**: A graph with no isolated vertices. Each vertex is connected to at least one other vertex
+   - A **connected component** is a graph that is *internally* connected but not connected to the vertices of the supergraph
+   - In BFS/DFS, if the number of nodes visited is equal to the total number of vertices, then the graph can be considered connected
+4. **Strongly-connected digraph**: A graph in which every pair of vertices has a directed _path_ both from `x` to `y` and from `y` to `x`. Otherwise, it is considered weakly-connected
    1. Strongly-connected components:
 
   <p align="center">
@@ -98,23 +98,23 @@
 
 #### Implementation <!-- omit in toc -->
 
-1. **Adjacency list**
-   - A hashmap whose keys are vertices and values are an unordered list of the neighbors of a vertex
-   - More efficient than a matrix in regards to fetching a given vertex's neighbors - `O(1)` lookup
-     - Less efficient for ascertaining if 2 vertices are neighbors - `O(|V|)` lookup
+1. **Adjacency List**
+   - A hashmap whose keys are vertices and the corresponding values are an unordered list of neighbors of a given vertex
+   - More efficient than a matrix in regards to fetching a vertex's neighbors - `O(1)` lookup
+     - Less efficient for ascertaining whether 2 vertices are neighbors - `O(|V|)` lookup
      - Slow to remove a vertex/edge because the entire map must be iterated over to remove any instances
 
  <p align="center">
     <img width=75% src="./assets/al.png"/>
   </p>
 
-2. **Adjacency matrix**
+2. **Adjacency Matrix**
    - Each (non-diagonal) entry `A`<sub>`ij`</sub> is equal to the number of edges from vertex `i` to vertex `j`
-     - Entries can also be booleans if the graph is parallel (directed path in both directions)
-   - In a graph without loops, the diagonal values in the matrix are `0`
+     - If the graph is parallel, the matrix can be composed entirely with booleans
+   - In a graph without cycles, the diagonal values in the matrix are `0`
    - Space efficient (1 bit per entry)
    - `O(1)` time to check if any 2 vertices are neighbors
-   - Slow to add/remove vertices because the matrix will necessarily need to be resized/updated
+   - Slow to add/remove vertices because the matrix will need to be resized
 
  <p align="center">
     <img width=75% src="./assets/am.png"/>
@@ -131,9 +131,11 @@ A tree is an _undirected_ graph in which any two vertices are connected by _exac
 
 #### Traversals <!-- omit in toc -->
 
-- Pre-order: Visit the _left_ side of each node
-- In-order: Visit the _bottom_ of each node
-- Post-order: Visit the _right_ side of each node
+Starting at the root node and going leftwards & downwards, the following traversals can be described likeso:
+
+- **Pre-order**: Visit the _left_ side of each node
+- **In-order**: Visit the _bottom_ of each node
+- **Post-order**: Visit the _right_ side of each node
 
 <p align="center">
   <img width=50% src="./assets/tree_traversals.jpeg"/>
@@ -143,20 +145,20 @@ A tree is an _undirected_ graph in which any two vertices are connected by _exac
 
 ##### Binary Trees
 
-- **Full tree**: every node (aside from the leaves) has either `0` or `2` children
-- **Complete tree**: Every level (except the last, potentially) is completely filled and all nodes are as far left as possible
-- **Perfect tree**: A tree which is full and **wholly** complete e.g. last level is entirely filled
-- **Balanced tree**: A tree in which the heights of any left and right sub-trees differ by no more than 1
+- **Full tree**: Each node (aside from the leaves) has either `0` or `2` children
+- **Complete tree**: Every level is completely filled and all nodes in the bottom level are as far left as possible
+- **Perfect tree**: A tree which is both full and **wholly** complete e.g. the last level is entirely filled
+- **Balanced tree**: A tree in which the heights of any left or right sub-trees differ by <= 1
 - **Tree rotation**: An operation that changes the tree structure _without_ affecting the original order of the nodes
 
 ##### Binary Search Trees
 
-Binary trees which have an additional sorting constraint such that **all** nodes of a left sub-tree are lesser than the root and **all** nodes of the right sub-tree are greater. This also implies that an inorder traversal of such a tree will print nodes in a sorted, ascending order.
+Binary trees that are optimized for insertions and lookups, these trees have an additional constraint such that **all** nodes of a left sub-tree are lesser than the root and **all** nodes of the right sub-tree are greater. An inorder traversal of such a tree would then print nodes in a sorted, ascending order.
 
 - BSTs have a performance that's proportional to its height
   - Therefore, a smaller height is algorithmically preferable
   - Balanced trees have a height of `O(logN)` for `N` nodes
-    - The worst case scenario for an unbalanced tree can be `O(N)`
+    - The worst case scenario for an unbalanced tree can be `O(N)` (linked list structure)
 
 ##### Spanning Tree
 
@@ -183,11 +185,11 @@ Algorithms:
 
 Given a connected, directed graph `G`, a shortest-path tree rooted at vertex `v` is a spanning tree `T` of `G`, such that the path distance from root `v` to any other vertex `u` in `T` is the shortest path distance from `v` to `u` in `G`.
 
-A key component in SPTs, edge relaxation is the method by which the shortest path is able to be derived. Starting from the source node `v`, all adjacent nodes' weights are catalogued into one comprehensive table. Any non-adjacent node is marked as having a weight of positive infinity.
+A key component in SPTs, edge relaxation is the method by which the next-shortest path is able to be determined. All node distances are initially assumed to be infinity. Starting from the source node `v`, the neighboring nodes are then greedily selected based on their distance from `v`. The selected itself node is then "visited" by this algorithm.
 
-On each iterative visit of the next-closest vertex `u`, the paths to every other vertex is re-calculated from `u`. If this recalculation leads to a lesser-weighted path to any vertex `w` within the table, then the weight of that edge is updated to reflect that new, lesser value.
+On each visit of the next-closest vertex `u`, the paths to every other vertex is re-calculated from `u`. If this recalculation leads to a lesser-weighted path to any vertex `w`, then the weight of that edge is updated to reflect the new, lesser value.
 
-Once the next-closest vertex is determined, that node is visited and the cycle repeats. Eventually, once all the nodes have been visited, the table will contain a shortest path value from a source vertex `v` to _every other node_ in the graph.
+Eventually, once all the nodes have been visited, the shortest paths from a source vertex `v` to _every other node_ in the graph will have been computed.
 
 Note: An SPT is **not** guaranteed to be an MST. An SPT guarantees that any node `u` will have a _locally_ optimized minimal path in regards to the _source_ node `v`, whereas an MST guarantees a _globally_ optimal cost to connect all vertices (without taking a source node into consideration).
 
@@ -285,7 +287,7 @@ def heapify(arr, n, i):
           heapify(arr, n, largest)
 
 
-  def heapSort(arr):
+  def heap_sort(arr):
       n = len(arr)
 
       # Build max heap
@@ -301,44 +303,16 @@ def heapify(arr, n, i):
 
 
   arr = [1, 12, 9, 5, 6, 10]
-  heapSort(arr)
+  heap_sort(arr)
 ```
 
 <p align="center">
   <img width=50% src="./assets/maxheap.png"/>
 </p>
 
-#### Fibonacci Heaps <!-- omit in toc -->
-
-A fibonacci heap is a data structure that consists of a collection of trees which follow min-heap or max-heap property. In this structure, a node can have any amount of children except one. It is constructed in such a way that a tree of order `n` has at least `F`<sub>`n+2`</sub> nodes in it, where `F`<sub>`n+2`</sub> is the `(n+2)`<sup>th</sup> Fibonacci number.
-
-##### Properties
-
-1. It is a set of min/max-heap-ordered trees
-2. A pointer is maintained at the minimum element node
-3. It consists of a set of marked nodes
-4. The trees within are unordered but rooted
-
-<p align="center">
-  <img width=70% src="./assets/fibonacci_heap.png"/>
-</p>
-
-##### Memory
-
-The roots of all trees are linked together for quick access. The children nodes are then connected to one another via a doubly-linked list.
-
-<p align="center">
-  <img width=70% src="./assets/fib_heap_structure.png"/>
-</p>
-
-##### Complexity
-
-- `O(1)` insertions, unions, key decreases, and min-finds
-- `O(logn)` min extraction and node deletion
-
 ### Disjoint Sets
 
-An abstract data structure that is concerned with the connectivity between components of a given network. Disjoint sets do not contain cycles, therefore they can be represented as trees.
+An abstract data structure that addresses the connectivity between components of a given network. Disjoint sets do not contain cycles, therefore, they can be represented as trees.
 
 #### Functions <!-- omit in toc -->
 
@@ -385,7 +359,7 @@ def union(self, x, y):
 
 1. `O(logN)` unions **and** finds
 2. Each _parent_ index in the array is assigned to another parent index
-3. Therefore, finding whether two vertices belong to a set takes a bit longer. `find(x), find(y)` has to access the index of `x` and `y`, and if its values are not not equal, it continually travels up their lineages until it finds their respective root nodes
+3. Therefore, finding whether two vertices belong to a set takes a bit longer. `find(x), find(y)` has to access the index of `x` and `y`, and if their values are not equal, the algorithm continuously travels up their lineages until it finds their respective root nodes
 4. Unions, on the other hand, are very efficient. To union two sets, the parent node of `set2` is the sole node that needs to be updated in the array
 
 ```python
@@ -411,13 +385,13 @@ def union(self, x, y):
 
 ##### Optimizations
 
-There are 2 main optimizations we can implement into the disjoint set union algorithm:
+There are 2 main optimizations we can implement into the disjoint set union algorithm
 
 ###### Union by Rank
 
 1. An extension of quick-union, union by rank provides optimizations for `union()`
 2. Serves to limit the maximum height of each set
-3. When unioning two vertices, instead of picking either the root of `x` or `y` at random (as in quick union), the root of the vertex with the lesser "rank" is chosen as the unionee
+3. When unioning two vertices, instead of selecting either the root of `x` or `y` at random (as quick union does), the root of the vertex with the lesser "rank" is chosen as the unionee
    1. Ranks are determined by tree height
    2. Thus, the "smaller" tree is merged into the larger and the possibility of creating a set that mimics a linked-list (`O(N)`) structuring is reduced
 4. The general concept is that the array structure should represent a tree in order for the time complexity to be reduced down to a logarithmic time complexity
@@ -426,11 +400,11 @@ There are 2 main optimizations we can implement into the disjoint set union algo
 ```python
 def __init__(self, size):
   self.root = [i for i in range(size)]
-  self.rank = [1] * size
+  self.rank = [0] * size # good!
 
 def find(self, x):
   while x != self.root[x]:
-    x = self.root[x]
+    x = self.root[x] # could be better :(
   return x
 
 def union(self, x, y):
@@ -459,8 +433,8 @@ def __init__(self, size):
   self.root = [i for i in range(size)]
 
 def find(self, x):
-  while x != self.root[x]: # optimization
-    self.root[x] = self.find(self.root[x])
+  while x != self.root[x]:
+    self.root[x] = self.find(self.root[x]) # great!
   return self.root[x]
 
 def union(self, x, y):
@@ -501,7 +475,7 @@ def union(self, x, y):
 
 - Nodes do not store keys, but rather their position within the trie defines the key
   - e.g. They typically only store a character and the full string is built via depth traversal
-- They typically store a boolean value representing whether said node signifies the end of a word
+- They also typically store a boolean value representing whether a given node signifies the end of a word
 - Implemented as a `dictionary` of dictionaries
 - `O(N)` lookup where `N` is the length of the word
 - `O(M*N)` space complexity, for `M` words of length `N`
@@ -1070,7 +1044,7 @@ class Solution:
 
 ###### Kruskal's Algorithm
 
-A greedy algorithm that takes a weighted, connected, undirected graph and calculates the subset of the edges of that graph which form a tree that includes every vertex and whose sum of edges is the minimum possible sum.
+A greedy algorithm that takes a weighted, connected, undirected graph and calculates the minimum possible sum from the set of edges to produce a minimum spanning tree.
 
 Algorithm
 
@@ -1090,14 +1064,14 @@ Complexity
 </p>
 
 ```python
-def minCostConnectPoints(self, points: List[List[int]]) -> int:
+def min_cost_to_connect_points(self, points: List[List[int]]) -> int:
     edges = []
     sum = 0
     self.init(len(points))
 
     for i in range(len(points)):
         for j in range(i+1, len(points)):
-            cost = self.calcManhattan(points[i], points[j])
+            cost = self.calc_manhattan_distance(points[i], points[j])
             edges.append((cost, i, j))
 
     heapq.heapify(edges)
@@ -1110,7 +1084,7 @@ def init(self, sz):
     self.roots = [x for x in range(sz)]
     self.ranks = [0 for _ in range(sz)]
 
-def calcManhattan(self, pt1: List[int], pt2: List[int]):
+def calc_manhattan_distance(self, pt1: List[int], pt2: List[int]):
     return abs(pt1[0] - pt2[0]) + abs(pt1[1] - pt2[1])
 
 def find(self, x):
@@ -1143,9 +1117,10 @@ def union(self, data):
 Very similar to Kruskal's except rather than constructing an MST with **edges**, Prim's algorithm builds it using **vertices**
 
 - Steps
-  1. Initialize the minimum spanning tree with a vertex chosen at random.
-  2. Find all the edges that connect the tree to new vertices, find the minimum and add it to the tree
-  3. Keep repeating step 2 until we get a minimum spanning tree
+  1. Initialize the minimum spanning tree with a vertex chosen at random
+  2. Find all the edges that connect to the current vertex
+  3. From those edges, "select" the minimum and add it to the tree
+  4. Repeat from step 2 until MST is fully constructed
 - Time complexity
   - Binary heap: `O(E⋅logV)`
     - `O(V + E)` time to traverse all vertices
@@ -1159,7 +1134,7 @@ Very similar to Kruskal's except rather than constructing an MST with **edges**,
 </p>
 
 ```python
-def min_cost_connect_points(self, points: List[List[int]]) -> int:
+def min_cost_to_connect_points(self, points: List[List[int]]) -> int:
   sz, visited = len(points), [False]*sz
   pq, res, v1 = [], 0, points[0]
   visited[0] = True
@@ -1202,7 +1177,7 @@ Complexity
 
 ```python
 class Solution:
-    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:
+    def network_delay_time(self, times: List[List[int]], n: int, k: int) -> int:
         graph, dist, pq = defaultdict(list), {}, [(0, k)]
 
         for src, dest, cost in times:
@@ -1966,37 +1941,6 @@ A server that sits in front of a back-end system and acts as the public-facing i
 | Scalability | Vertically                                         | Horizontally         |
 | Reliability | Consistent, available                              | Performant, scalable |
 
-### Distributed Systems
-
-#### Key characteristics <!-- omit in toc -->
-
-1. Scalability
-   1. Ability of the server to intelligently handle fluctuating changes in demand
-2. Availability
-   - A measure of the time that a system remains operational
-     - Can be reduced by maintenance
-   - If a system is _available_, that does not necessarily mean it's _reliable_
-     - Is the service online?
-3. Reliability
-   - A measure of the probability that a system will fail in a given period of time
-   - A reliable system is one that continuously delivers its services, even in the event of component failures
-   - If a system is _reliable_, it is also _available_.
-     - Is the service online **and** is it healthy?
-4. Efficiency
-   - Hard to measure but there are 2 crude factors to consider:
-     - Latency: the time between a request and its response
-     - Throughput / bandwidth
-       - The number of requests processed in a given unit of time
-         - Number of messages sent
-         - Size of messages
-5. Manageability
-   - The ease of its operation, maintenance, and repair
-   - If time to fix (TTF) _increases_, then the system's availability _decreases_
-   - Consider:
-     - Ease of diagnosis
-     - Ease of making updates/modifications
-     - Complexity of the system
-
 ### Miscellaneous
 
 #### Redundancy <!-- omit in toc -->
@@ -2552,7 +2496,7 @@ This layer is utilized by end-user software such as web browsers and email clien
   <img width=50% src="./assets/app.svg"/>
 </p>
 
-## Miscellaneous
+## Miscellaneous Programming Concepts
 
 ### Overriding vs Overloading <!-- omit in toc -->
 
